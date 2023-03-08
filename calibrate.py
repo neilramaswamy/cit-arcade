@@ -97,33 +97,46 @@ class Display:
         # We can infer the minor axis by seeing which side of the panel we're on, and using the
         # major axis
         minor_orientation = None
-        
-        if first_light_rm_index % self.pixels_per_panel == 0:
-            # We're on the top-left of panel
+
+        is_left_columnn = first_light_rm_index % self.panel_length == 0
+        is_first_row = (first_light_rm_index % (self.pixels_per_panel * self.display_width_panels)) < self.display_pixel_width
+
+        is_top_left = is_first_row and is_left_columnn
+        is_top_right = is_first_row and not is_left_columnn
+        is_bottom_left = not is_first_row and is_left_columnn
+        is_bottom_right = not is_first_row and not is_left_columnn
+
+
+        if is_top_left:
+            print("panel root is top left")
+
             if major_orientation == ORIENTATION.RIGHT:
                 minor_orientation = ORIENTATION.BELOW
             elif major_orientation == ORIENTATION.BELOW:
                 minor_orientation = ORIENTATION.RIGHT
             else:
                 raise Exception(f"Could not determine minor axis from top-left point {first_light_rm_index} and major {major_orientation}")
-        elif first_light_rm_index % self.pixels_per_panel == self.panel_length - 1:
-            # We're on the top-right of panel
+        elif is_top_right:
+            print("panel root is top right")
+
             if major_orientation == ORIENTATION.LEFT:
                 minor_orientation = ORIENTATION.BELOW
             elif major_orientation == ORIENTATION.BELOW:
                 minor_orientation = ORIENTATION.LEFT
             else:
                 raise Exception(f"Could not determine minor axis from top-right point {first_light_rm_index} and major {major_orientation}")
-        elif first_light_rm_index % self.pixels_per_panel == (self.pixels_per_panel - self.panel_length):
-            # We're on the bottom-left of panel
+        elif is_bottom_left:
+            print("panel root is bottom left")
+
             if major_orientation == ORIENTATION.RIGHT:
                 minor_orientation = ORIENTATION.ABOVE
             elif major_orientation == ORIENTATION.ABOVE:
                 minor_orientation = ORIENTATION.RIGHT
             else:
                 raise Exception(f"Could not determine minor axis from bottom-left point {first_light_rm_index} and major {major_orientation}")
-        elif first_light_rm_index % self.pixels_per_panel == self.pixels_per_panel - 1:
-            # We're on the bottom-right of the panel
+        elif is_bottom_right:
+            print("panel root is bottom right")
+
             if major_orientation == ORIENTATION.LEFT:
                 minor_orientation = ORIENTATION.ABOVE
             elif major_orientation == ORIENTATION.ABOVE:
@@ -164,3 +177,28 @@ class Display:
 if __name__ == "__main__":
     d = Display(2, 2, 2)
     d.do_calibrate()
+
+
+
+"""
+
+
+0  1  2   3
+4  5  6   7
+8  9  10  11
+12 13 14  15
+
+
+Are you on the first row or the last row
+Are you on the left or right
+
+First row left
+
+
+
+15 14
+7 3
+5 4
+
+
+"""
