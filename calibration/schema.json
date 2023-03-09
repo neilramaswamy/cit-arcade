@@ -1,0 +1,39 @@
+{
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string"
+        },
+
+        "display_conf": {
+            "type": "object",
+            "properties": {
+                "num_vertical_panels": {
+                    "type": "number"
+                },
+                "num_horizontal_panels": {
+                    "type": "number"
+                },
+                "panel_side_length": {
+                    "type": "number"
+                }
+            }
+        },
+
+        "panel_conf": {
+            "type": "array",
+            "items": {
+                "panel_index": {
+                    "type": "number"
+                },
+                "first_major_start_rm": {
+                    "type": "number"
+                },
+                "first_major_end_rm": {
+                    "type": "number"
+                }
+            }
+        }
+    },
+    "required": ["name", "display_conf", "panel_conf"]
+}

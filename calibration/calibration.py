@@ -26,6 +26,12 @@ class Display:
         self.pixels_per_panel = self.panel_length * self.panel_length
         self.display_pixel_width = self.display_width_panels * self.panel_length
         self.display_pixel_height = self.display_height_panels * self.panel_length
+    
+
+    # Reads the configuration file from disk and synchronously writes the configuration data to
+    # disk.
+    def record_panel_configuration(self, config_name: str, panel_i: int, first_major_start_rm: int, first_major_end_rm: int):
+        pass
 
     # Returns the row-major index of the pixel at the given strip index, by prompting the user.
     # For now, the prompt is via the console, but this will be replaced with a GUI.
@@ -67,7 +73,10 @@ class Display:
         else:
             raise Exception(f"Invalid start and end indices of start {start_rm_index} and end {end_rm_index}")
     
-    def get_direction_from_orientation(self, orientation: ORIENTATION) -> tuple[int, int]:
+    
+    # Given an orientation on the current display, figures out the row-major "stride" that we need
+    # to take to move in that direction.
+    def get_stride_from_orientation(self, orientation: ORIENTATION) -> int:
         if orientation == ORIENTATION.ABOVE:
             return -self.display_pixel_width
         elif orientation == ORIENTATION.BELOW:
@@ -79,25 +88,9 @@ class Display:
         else:
             raise Exception(f"Unknown orientation: {orientation}")
 
-
-    def calibrate_panel(self, panel_index: int):
-        # From strip-light index to row-major index
-        mapping = {}
-
-
-        first_light_strip_index = panel_index * self.pixels_per_panel 
-        first_light_rm_index = self.get_user_input(first_light_strip_index)
-
-        major_axis_end_strip_index = first_light_strip_index + (self.panel_length - 1)
-        major_axis_end_rm_index = self.get_user_input(major_axis_end_strip_index)
-
-        # Infer the major orientation and minor orientation
-        major_orientation = self.orientation(first_light_rm_index, major_axis_end_rm_index)
-
-        # We can infer the minor axis by seeing which side of the panel we're on, and using the
-        # major axis
-        minor_orientation = None
-
+    # Infers the minor axis of a panel given the row-major index of the first (strip-wise) light of
+    # the panel. Uses the major axis to know to go the "other" way.
+    def infer_minor_axis(self, first_light_rm_index: int, major_orientation: ORIENTATION) -> ORIENTATION:
         is_left_columnn = first_light_rm_index % self.panel_length == 0
         is_first_row = (first_light_rm_index % (self.pixels_per_panel * self.display_width_panels)) < self.display_pixel_width
 
@@ -106,99 +99,70 @@ class Display:
         is_bottom_left = not is_first_row and is_left_columnn
         is_bottom_right = not is_first_row and not is_left_columnn
 
-
         if is_top_left:
-            print("panel root is top left")
-
             if major_orientation == ORIENTATION.RIGHT:
-                minor_orientation = ORIENTATION.BELOW
+                return ORIENTATION.BELOW
             elif major_orientation == ORIENTATION.BELOW:
-                minor_orientation = ORIENTATION.RIGHT
+                return ORIENTATION.RIGHT
             else:
                 raise Exception(f"Could not determine minor axis from top-left point {first_light_rm_index} and major {major_orientation}")
         elif is_top_right:
-            print("panel root is top right")
-
             if major_orientation == ORIENTATION.LEFT:
-                minor_orientation = ORIENTATION.BELOW
+                return ORIENTATION.BELOW
             elif major_orientation == ORIENTATION.BELOW:
-                minor_orientation = ORIENTATION.LEFT
+                return ORIENTATION.LEFT
             else:
                 raise Exception(f"Could not determine minor axis from top-right point {first_light_rm_index} and major {major_orientation}")
         elif is_bottom_left:
-            print("panel root is bottom left")
-
             if major_orientation == ORIENTATION.RIGHT:
-                minor_orientation = ORIENTATION.ABOVE
+                return ORIENTATION.ABOVE
             elif major_orientation == ORIENTATION.ABOVE:
-                minor_orientation = ORIENTATION.RIGHT
+                return ORIENTATION.RIGHT
             else:
-                raise Exception(f"Could not determine minor axis from bottom-left point {first_light_rm_index} and major {major_orientation}")
+                raise Exception(f"Couldn't infer minor axis from bottom-left point {first_light_rm_index} and major {major_orientation}")
         elif is_bottom_right:
-            print("panel root is bottom right")
-
             if major_orientation == ORIENTATION.LEFT:
-                minor_orientation = ORIENTATION.ABOVE
+                return ORIENTATION.ABOVE
             elif major_orientation == ORIENTATION.ABOVE:
-                minor_orientation = ORIENTATION.LEFT
+                return ORIENTATION.LEFT
             else: 
                 raise Exception(f"Could not determine minor axis from bottom-right point {first_light_rm_index} and major {major_orientation}")
         else:
             raise Exception(f"Could not infer minor axis: invalid first light index: {first_light_rm_index}")
 
+    def calibrate_panel(self, first_major_start_rm: int, first_major_end_rm: int):
+        # From strip-light index to row-major index
+        mapping = {}
 
-        # We use the major and minor orientations to determine how to layout the panel
-        major_direction = self.get_direction_from_orientation(major_orientation)
-        minor_direction = self.get_direction_from_orientation(minor_orientation)
+        # Figure out the major orientation and minor orientation
+        major_orientation = self.orientation(first_major_start_rm, first_major_end_rm)
+        minor_orientation = self.infer_minor_axis(first_major_start_rm, major_orientation)
 
-        print(f"Major direction is {major_direction} and minor direction is {minor_direction}")
+        major_stride = self.get_stride_from_orientation(major_orientation)
+        minor_stride = self.get_stride_from_orientation(minor_orientation)
 
         for minor_idx in range(self.panel_length):
             for major_idx in range(self.panel_length):
-                strip_offset = (minor_idx * self.panel_length) + major_idx
-
-                # Even row, we go in the direction of major_direction
+                # For an even row, we go in the direction of major_stride
                 if minor_idx % 2 == 0:
-                    major_offset = major_idx * major_direction
+                    major_offset = major_idx * major_stride
                 else:
-                    # Compute from the other side of the panel
-                    major_offset = (self.panel_length - major_idx - 1) * major_direction
+                    # For an odd row, we compute from the other side of the panel
+                    major_offset = (self.panel_length - major_idx - 1) * major_stride
 
-                minor_offset = minor_idx * minor_direction
+                minor_offset = minor_idx * minor_stride
 
-                mapping[strip_offset] = first_light_rm_index + major_offset + minor_offset
+                strip_offset = (minor_idx * self.panel_length) + major_idx
+                mapping[strip_offset] = first_major_start_rm + major_offset + minor_offset
 
         return mapping    
-    
-    def do_calibrate(self):
-        for i in range(self.display_width_panels * self.display_height_panels):
-            print(self.calibrate_panel(i))
-
-if __name__ == "__main__":
-    d = Display(2, 2, 2)
-    d.do_calibrate()
 
 
+    # Main sequence of events:
+    #
+    # while (get next panel to calibrate):
+    #   using received strip index, prompt user 
+    #   get back user input and store it
 
-"""
-
-
-0  1  2   3
-4  5  6   7
-8  9  10  11
-12 13 14  15
-
-
-Are you on the first row or the last row
-Are you on the left or right
-
-First row left
-
-
-
-15 14
-7 3
-5 4
-
-
-"""
+    # When starting a display, you can use a stored calibration
+    # Then, the mapping is calculated
