@@ -1,39 +1,37 @@
 {
-    "type": "object",
     "properties": {
         "name": {
             "type": "string"
         },
 
         "display_conf": {
-            "type": "object",
             "properties": {
                 "num_vertical_panels": {
-                    "type": "number"
+                    "type": "int32"
                 },
                 "num_horizontal_panels": {
-                    "type": "number"
+                    "type": "int32"
                 },
                 "panel_side_length": {
-                    "type": "number"
+                    "type": "int32"
                 }
             }
         },
 
         "panel_conf": {
-            "type": "array",
-            "items": {
-                "panel_index": {
-                    "type": "number"
-                },
-                "first_major_start_rm": {
-                    "type": "number"
-                },
-                "first_major_end_rm": {
-                    "type": "number"
+            "elements": {
+                "properties": {
+                    "panel_index": {
+                        "type": "int32"
+                    },
+                    "first_major_start_rm": {
+                        "type": "int32"
+                    },
+                    "first_major_end_rm": {
+                        "type": "int32"
+                    }
                 }
             }
         }
-    },
-    "required": ["name", "display_conf", "panel_conf"]
+    }
 }

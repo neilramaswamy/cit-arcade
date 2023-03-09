@@ -3,8 +3,7 @@ from enum import Enum
 # Panel axes
 ORIENTATION = Enum("ORIENTATION", "ABOVE BELOW LEFT RIGHT")
 
-# A proof-of-concept for panel calibration
-class Display:
+class Inferer:
     panel_length: int = 0
     display_width_panels: int = 0
     display_height_panels: int = 0
@@ -14,10 +13,6 @@ class Display:
     display_pixel_width: int = 0
     display_pixel_height: int = 0
 
-    # Maps pixels between their strip index and the row major index, where row-major starts at the
-    # top-left and goes left-to-right, top-to-bottom (i.e. how arrays are stored in memory).
-    strip_rm_map: dict[int, int] = {}
-
     def __init__(self, panel_length: int, display_width_panels: int, display_height_panels: int):
         self.panel_length = panel_length 
         self.display_width_panels = display_width_panels
@@ -26,18 +21,6 @@ class Display:
         self.pixels_per_panel = self.panel_length * self.panel_length
         self.display_pixel_width = self.display_width_panels * self.panel_length
         self.display_pixel_height = self.display_height_panels * self.panel_length
-    
-
-    # Reads the configuration file from disk and synchronously writes the configuration data to
-    # disk.
-    def record_panel_configuration(self, config_name: str, panel_i: int, first_major_start_rm: int, first_major_end_rm: int):
-        pass
-
-    # Returns the row-major index of the pixel at the given strip index, by prompting the user.
-    # For now, the prompt is via the console, but this will be replaced with a GUI.
-    def get_user_input(self, strip_index: int) -> int:
-        index = input("Illuminating pixel at strip-index %d. Enter the row-major index: " % strip_index)
-        return int(index)
 
     # Returns whether end_rm_index is above, below, to the left, or to the right of start_rm_index.
     def orientation(self, start_rm_index: int, end_rm_index: int) -> ORIENTATION:
@@ -72,8 +55,7 @@ class Display:
                 return ORIENTATION.RIGHT
         else:
             raise Exception(f"Invalid start and end indices of start {start_rm_index} and end {end_rm_index}")
-    
-    
+
     # Given an orientation on the current display, figures out the row-major "stride" that we need
     # to take to move in that direction.
     def get_stride_from_orientation(self, orientation: ORIENTATION) -> int:
@@ -129,8 +111,14 @@ class Display:
                 raise Exception(f"Could not determine minor axis from bottom-right point {first_light_rm_index} and major {major_orientation}")
         else:
             raise Exception(f"Could not infer minor axis: invalid first light index: {first_light_rm_index}")
-
-    def calibrate_panel(self, first_major_start_rm: int, first_major_end_rm: int):
+    
+    # Computes a mapping between strip index and row-major index using only two anchor points.
+    #
+    # The first anchor point is the row-major index of the first LED (strip-wise) in the panel.
+    # The second anchor point is the row-major index of the last LED of the *first* major axis.
+    #
+    # Returns a mapping from strip-index, within the panel, to the row-major index.
+    def compute_panel_mapping(self, first_major_start_rm: int, first_major_end_rm: int) -> dict[int, int]:
         # From strip-light index to row-major index
         mapping = {}
 
@@ -156,13 +144,3 @@ class Display:
                 mapping[strip_offset] = first_major_start_rm + major_offset + minor_offset
 
         return mapping    
-
-
-    # Main sequence of events:
-    #
-    # while (get next panel to calibrate):
-    #   using received strip index, prompt user 
-    #   get back user input and store it
-
-    # When starting a display, you can use a stored calibration
-    # Then, the mapping is calculated
