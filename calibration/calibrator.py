@@ -22,9 +22,34 @@ class Calibrator:
     # The maps are just inverses of each other.
     def compute_mappings(self, calibration: Schema) -> tuple[dict, dict]:
         # For each panel from the calibration, call the inferer
+        strip_to_rm: dict[int, int] = {}
+
+        for panel_conf in calibration.panel_conf:
+            first_major_start_rm = panel_conf.first_major_start_rm
+            first_major_end_rm =  panel_conf.first_major_end_rm
+
+            panel_map = self.inferer.compute_panel_mapping(first_major_start_rm, first_major_end_rm)
+
+            strip_offset = panel_conf.panel_index * (self.panel_length ** 2)
+
+            for panel_strip_idx, rm_idx in panel_map.items():
+                strip_to_rm[strip_offset + panel_strip_idx] = rm_idx
+
+        rm_to_strip = {v: k for k, v in strip_to_rm.items()}
+        return (strip_to_rm, rm_to_strip)
+
+    def list_calibrations(self) -> list[Schema]:
         pass
 
-    # TODO(neil): List calibrations, get calibrations, get details for one calibration
+    def add_calibration(self, name: str) -> Schema:
+        pass
+
+    # Should be able to edit a calibration
+    def edit_calibration(self, name: str):
+        pass
+
+    def remove_calibration(self, name: str):
+        pass
 
     # Returns the row-major index of the pixel at the given strip index, by prompting the user.
     # For now, the prompt is via the console, but this will be replaced with a GUI.
