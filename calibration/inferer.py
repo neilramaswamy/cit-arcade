@@ -143,4 +143,4 @@ class Inferer:
                 strip_offset = (minor_idx * self.panel_length) + major_idx
                 mapping[strip_offset] = first_major_start_rm + major_offset + minor_offset
 
-        return mapping    
+        return mapping

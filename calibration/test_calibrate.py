@@ -15,7 +15,7 @@ class TestPanelCalibration(unittest.TestCase):
 
         bottom_right_clockwise = inferer.compute_panel_mapping(15, 14)
         self.assertDictEqual(bottom_right_clockwise, { 0: 15, 1: 14, 2: 10, 3: 11 })
-    
+
     def test_2x2_mapping_from_schema(self):
         calibrator = Calibrator(2, 2, 2)
 
@@ -58,6 +58,10 @@ class TestPanelCalibration(unittest.TestCase):
     
 # Assemble an in-memory calibration and call compute_mapping on it
 # Create a calibration, make updates to it, read it back, and compute_mapping
+class TestE2EPanelCalibration(unittest.TestCase):
+    # Create a calibration, write to disk 
+    # Read that back, pass it to the inferer, and make sure the inferred map is correct
+    pass
 
 if __name__ == '__main__':
     unittest.main()
