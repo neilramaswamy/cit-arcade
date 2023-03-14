@@ -1,7 +1,13 @@
-from calibration.schemas import SchemaDisplayConf
+import numpy as np
+import matplotlib.pyplot as plt
+
+from visualizer import Visualizer
+
+# from calibration.schemas import SchemaDisplayConf
 
 class GUIPixelStrip(object):
-    def __init__(self, display_conf: SchemaDisplayConf, one_to_two_map: dict[int, int], num,
+
+    def __init__(self, display_conf, one_to_two_map, num,
             pin, freq_hz=800000, dma=10, invert=False, brightness=255, channel=0,
             strip_type=None, gamma=None):
         """Class to represent a SK6812/WS281x LED display.  Num should be the
@@ -12,61 +18,85 @@ class GUIPixelStrip(object):
         specifying if the signal line should be inverted (default False), and
         channel, the PWM channel to use (defaults to 0).
         """
-        pass
+
+        self.ready = False
+
+        self.side_length = 5 # display_conf.panel_side_length
+        self.horz_panels = 2 # display_conf.num_horizontal_panels
+        self.vert_panels = 3 # display_conf.num_vertical_panels
+
+        self.visualizer = Visualizer(
+            self.side_length, 
+            self.horz_panels, 
+            self.vert_panels)
+        
+        self.num_pixels = self.side_length ** 2 * self.horz_panels * self.vert_panels
+        self.colors = np.zeros((self.num_pixels, 3))
 
     def will_not_implement(self):
         raise Exception("Will not implement!")
 
     def begin(self):
-        """Initialize library, must be called once before other functions are
-        called.
-        """
+        self.ready = True
+        print("LED strip ready")
         pass
 
     def show(self):
-        """Update the display with the data from the LED buffer."""
-        pass
+        """
+        Update the display with the data from the LED buffer.
+        """
+
+        if not self.ready: raise Exception("Must call begin()")
+
+        self.visualizer.displayColors(self.colors)
 
     def setPixelColor(self, n, color):
-        """Set LED at position n to the provided 24-bit color value (in RGB order).
-        """
-        pass
+        self.will_not_implement()
 
     def setPixelColorRGB(self, n, red, green, blue, white=0):
-        """Set LED at position n to the provided red, green, and blue color.
+        """
+        Set LED at position n to the provided red, green, and blue color.
         Each color component should be a value from 0 to 255 (where 0 is the
         lowest intensity and 255 is the highest intensity).
         """
-        pass
+        
+        if not self.ready: raise Exception("Must call begin()")
 
-    def setGamma(self, gamma):
+        self.colors[n] = np.array([red, green, blue]) / 255
+
+    def setGamma(self, _):
         self.will_not_implement()
 
     def getBrightness(self):
         self.will_not_implement()
 
-    def setBrightness(self, brightness):
-        """Scale each LED in the buffer by the provided brightness.  A brightness
-        of 0 is the darkest and 255 is the brightest.
-        """
+    def setBrightness(self, _):
         self.will_not_implement()
 
     def getPixels(self):
-        """Return an object which allows access to the LED display data as if
-        it were a sequence of 24-bit RGB values.
-        """
         self.will_not_implement()
 
     def numPixels(self):
-        """Return the number of pixels in the display."""
         self.will_not_implement()
 
-    def getPixelColor(self, n):
-        """Get the 24-bit RGB color value for the LED at position n."""
+    def getPixelColor(self, _):
         self.will_not_implement()
 
-    def getPixelColorRGB(self, n):
+    def getPixelColorRGB(self, _):
         self.will_not_implement()
     
-    def getPixelColorRGBW(self, n):
+    def getPixelColorRGBW(self, _):
         self.will_not_implement()
+
+if __name__ == "__main__":
+    
+    strip = GUIPixelStrip(0,0,0,0)
+
+    strip.begin()
+
+    for i in range(150):
+        input("Press [enter] to set next pixel.")
+        strip.setPixelColorRGB(i, 255, 255, 255)
+        strip.show()
+
+    input("Press [enter] to finish.")
