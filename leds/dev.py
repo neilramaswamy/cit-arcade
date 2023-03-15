@@ -21,9 +21,9 @@ class GUIPixelStrip(object):
 
         self.ready = False
 
-        self.side_length = 5 # display_conf.panel_side_length
-        self.horz_panels = 2 # display_conf.num_horizontal_panels
-        self.vert_panels = 3 # display_conf.num_vertical_panels
+        self.side_length = 9 # display_conf.panel_side_length
+        self.horz_panels = 4 # display_conf.num_horizontal_panels
+        self.vert_panels = 4 # display_conf.num_vertical_panels
 
         self.visualizer = Visualizer(
             self.side_length, 

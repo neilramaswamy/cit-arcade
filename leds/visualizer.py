@@ -10,11 +10,11 @@ class Visualizer:
         self.fig = None
         
         # Init hardcoded image and its hardcoded parameters
-        self.img = plt.imread("windows.png")
-        self.grid_tl = np.array([110, 87])
-        self.grid_br = np.array([753, 1090])
-        self.grid_gap = 28
-        self.pixel_circle_max_fill_proportion = 0.75
+        self.img = np.zeros(plt.imread("cit.png").shape)
+        self.grid_tl = np.array([49, 230])
+        self.grid_br = np.array([744, 914])
+        self.grid_gap = 14
+        self.pixel_circle_max_fill_proportion = 0.85
 
         # Derive values from the above
         self.sub_grid_tls, self.sub_grid_wh = getSubGrid(
@@ -43,7 +43,7 @@ class Visualizer:
             self.circles.remove()
 
         squares_list = [patches.Rectangle(tl, self.sub_grid_wh[0], self.sub_grid_wh[1]) for tl in self.sub_grid_tls]
-        squares_coll = collections.PatchCollection(squares_list, facecolors='#888', zorder=1)
+        squares_coll = collections.PatchCollection(squares_list, facecolors='#8008', zorder=1)
         self.squares = self.ax.add_collection(squares_coll)
 
         circles_list = [patches.Circle(xy, self.pixel_radius) for xy in self.pixel_xys]
