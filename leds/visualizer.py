@@ -10,8 +10,8 @@ class Visualizer:
         self.fig = None
         
         # Init hardcoded image and its hardcoded parameters
-        self.img = np.zeros(plt.imread("cit.png").shape)
-        self.grid_tl = np.array([49, 230])
+        self.img = plt.imread("leds/cit.png")
+        self.grid_tl = np.array([49, 212])
         self.grid_br = np.array([744, 914])
         self.grid_gap = 14
         self.pixel_circle_max_fill_proportion = 0.85
@@ -91,9 +91,9 @@ def getPixelXYs(side_length, sub_grid_tls, sub_grid_wh):
  
 if __name__ == "__main__":
     
-    side_length = 5
-    horz_panels = 2
-    vert_panels = 3
+    side_length = 9
+    horz_panels = 4
+    vert_panels = 4
 
     visualizer = Visualizer(side_length, horz_panels, vert_panels)
 

@@ -1,6 +1,6 @@
 from enum import Enum
-from schemas import Schema, SchemaDisplayConf, SchemaPanelConf
-from inferer import Inferer
+from calibration.schemas import Schema, SchemaDisplayConf, SchemaPanelConf
+from calibration.inferer import Inferer
 from config.config import CALIBRATION_SAVE_PATH
 import os
 
@@ -25,6 +25,31 @@ class Calibrator:
 
         self.inferer = Inferer(panel_length, display_width_panels, display_height_panels)
     
+    def do_tty_calibration(self, illuminate_pixel) -> Schema:
+        s = Schema(None, "", [])
+        s.name = "in-memory-calibration"
+        s.display_conf = SchemaDisplayConf(
+            num_horizontal_panels=self.display_width_panels,
+            num_vertical_panels=self.display_height_panels,
+            panel_side_length=self.panel_length)
+        s.panel_conf = []
+        
+        # Get all the damn panels
+        for i in range(self.display_height_panels * self.display_width_panels):
+            illuminate_pixel(i * (self.panel_length ** 2))
+            first = input("Enter first pixel being illuminated: ")
+
+            illuminate_pixel(i * (self.panel_length ** 2) + self.panel_length - 1)
+            second = input("Enter (second) pixel being illuminated: ")
+            
+            s.panel_conf.append(SchemaPanelConf(first_major_end_rm=first, first_major_start_rm=second, panel_index=i))
+
+        schema_json = s.to_json_data() 
+        
+        with open("tty_config", "w") as f:
+            f.write(schema_json)
+
+    
     # From the given calibration, computes two mapping:
     #   1. Row-major index to strip-wise index
     #   2. Strip-wise index to row-major index
@@ -46,6 +71,7 @@ class Calibrator:
 
         rm_to_strip = {v: k for k, v in strip_to_rm.items()}
         return (strip_to_rm, rm_to_strip)
+
 
     def list_calibrations(self) -> list[Schema]:
         files = os.listdir(self.save_path)

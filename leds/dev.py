@@ -1,9 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from visualizer import Visualizer
-
-# from calibration.schemas import SchemaDisplayConf
+from leds.visualizer import Visualizer
 
 class GUIPixelStrip(object):
 
@@ -39,7 +37,6 @@ class GUIPixelStrip(object):
     def begin(self):
         self.ready = True
         print("LED strip ready")
-        pass
 
     def show(self):
         """
