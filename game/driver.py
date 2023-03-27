@@ -49,7 +49,7 @@ class CitArcadeGameDriver():
     def get_pixels(self):
         self.screen.fill((0, 0, 255))
 
-        pygame.draw.circle(self.screen, (255, 0, 0), (4, 4), 2)
+        pygame.draw.rect(self.screen, (255, 0, 0), (4, 4), 2)
 
         pygame.display.flip()
 
@@ -91,7 +91,6 @@ def render_to_strip(strip, rm_pixels, mapping):
             strip_index = mapping[rm_index]
 
             pixel = rm_pixels[i][j]
-            print(f"pixel {rm_index} is {pixel} (strip index {strip_index})")
 
             strip.setPixelColor(strip_index, Color(int(pixel[0]), int(pixel[1]), int(pixel[2])))
     
@@ -114,7 +113,6 @@ if __name__ == "__main__":
 
     while game.apply_updates():
         pixels = game.get_pixels()
-        print(f"pixels are {pixels}")
 
         render_to_strip(strip, pixels, mapping)
         time.sleep(2)
