@@ -3,6 +3,7 @@ import pygame
 from mapper.map import ensure_map
 import time
 from leds.strip import get_strip
+from rpi_ws281x import Color
 import os
 
 os.environ["SDL_VIDEODRIVER"] = "dummy"
@@ -15,8 +16,8 @@ class CitArcadeGameDriver():
         self.clock = pygame.time.Clock()
         self.running = True
 
-        self.player_pos = pygame.Vector2(self.screen.get_width() // 2, self.screen.get_height() // 2)
-    
+        self.player_pos = pygame.Vector2(4, 5)
+
     # updates is a list of custom-specified updates, since our updates don't come from Pygame
     # itself; they'll be coming over the network, probably
     #
@@ -29,14 +30,14 @@ class CitArcadeGameDriver():
             if update.dx != None:
                 self.player_pos.x += update.dx
             if update.py != None:
-                self.player_pos.y += update.y
+                self.player_pos.y += update.dy
 
         return True
 
     def paint(self):
         self.screen.fill((0, 0, 255))
 
-        pygame.draw.circle(self.screen, "red", self.player_pos, 2)
+        pygame.draw.circle(self.screen, (255, 0, 0), (4, 4), 2)
 
         # flip() the display to paint
         pygame.display.flip()
@@ -45,7 +46,7 @@ class CitArcadeGameDriver():
 
 if __name__ == "__main__":
     mapping = ensure_map()
-    
+
     strip = get_strip()
     strip.begin()
 
@@ -54,18 +55,17 @@ if __name__ == "__main__":
 
     while game.apply_updates(updates):
         rm_pixels = game.paint()
+        print(rm_pixels)
 
         for i in range(len(rm_pixels)):
             row = rm_pixels[i]
             for j in range(len(row)):
-                rm_index = (i * len(row)) + j 
+                rm_index = (i * len(row)) + j
                 strip_index = mapping[rm_index]
 
-                pixel = rm_pixels[i][j]  / 255
-
-                strip.setPixelColorRGB(strip_index, pixel[0], pixel[1], pixel[2])
+                pixel = rm_pixels[i][j]
+                print(f"mapping rm index {rm_index} to strip index {strip_index} with {pixel}")
+                strip.setPixelColor(strip_index, Color(int(pixel[0]), int(pixel[1]), int(pixel[2])))
         strip.show()
 
-        time.sleep(1)
-
-
+        time.sleep(10)
