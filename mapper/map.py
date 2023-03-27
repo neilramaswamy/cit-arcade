@@ -126,3 +126,14 @@ def ensure_map() -> dict:
 
     print(f"Mapping is {str(loaded_map)}")
     return loaded_map
+
+if __name__ == "__main__":
+    command = input("Inspect map or create new? [I/C]: ")
+    if command == "I":
+        name = input("Name of calibration: ")
+        loaded_map = load_map(name)
+        print(f"Mapping is {str(loaded_map)}")
+    elif command == "C":
+        ensure_map()
+    else:
+        print("Invalid command")
