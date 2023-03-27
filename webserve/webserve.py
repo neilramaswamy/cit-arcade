@@ -8,6 +8,7 @@ def do_webserve(updates: list, updates_lock: RLock):
     # Look ma, no flask_cors!
     def after_request(r: Response):
         r.access_control_allow_origin = "*"
+        return r
     app.after_request(after_request)
 
     def do_up():
