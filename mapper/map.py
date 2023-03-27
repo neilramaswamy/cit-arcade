@@ -110,7 +110,7 @@ def load_map(name: str) -> dict:
     print(f"Did not find existing map at {path}") 
     return None
 
-if __name__ == "__main__":
+def ensure_map() -> dict:
     name = input("Name for calibration: ")
     loaded_map = load_map(name)
 
@@ -124,3 +124,4 @@ if __name__ == "__main__":
         save_map(name, loaded_map)
 
     print(f"Mapping is {str(loaded_map)}")
+    return loaded_map

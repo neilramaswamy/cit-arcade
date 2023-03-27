@@ -1,9 +1,11 @@
-from config.config import IS_DEV
 from leds.dev import GUIPixelStrip
-from calibration.schemas import SchemaDisplayConf
+from leds.prod import get_prod_strip
+from rpi_ws281x import PixelStrip, Color
+
+IS_DEV = True 
 
 def get_strip():
     if IS_DEV:
         return GUIPixelStrip(None, None, None, None)
     else:
-        raise Exception("LEDStrip not implemented for production yet")
+        return get_prod_strip()
