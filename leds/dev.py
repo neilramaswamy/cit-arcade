@@ -1,7 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
 from leds.visualizer import Visualizer
+
+def GUIColor(red, green, blue, white=0):
+    """Convert the provided red, green, blue color to a 24-bit color value.
+    Each color component should be a value 0-255 where 0 is the lowest intensity
+    and 255 is the highest intensity.
+    """
+    return [red, green, blue]
 
 class GUIPixelStrip(object):
 
@@ -48,7 +54,9 @@ class GUIPixelStrip(object):
         self.visualizer.displayColors(self.colors)
 
     def setPixelColor(self, n, color):
-        self.will_not_implement()
+        if not self.ready: raise Exception("Must call begin()")
+
+        self.colors[n] = np.array(color) / 255
 
     def setPixelColorRGB(self, n, red, green, blue, white=0):
         """

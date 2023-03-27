@@ -1,5 +1,3 @@
-from rpi_ws281x import PixelStrip, Color
-
 # LED strip configuration:
 LED_COUNT = 16        # Number of LED pixels.
 LED_PIN = 18          # GPIO pin connected to the pixels (18 uses PWM!).
@@ -10,4 +8,5 @@ LED_INVERT = False    # True to invert the signal (when using NPN transistor lev
 LED_CHANNEL = 0       # set to '1' for GPIOs 13, 19, 41, 45 or 53
 
 def get_prod_strip():
+    from rpi_ws281x import PixelStrip
     return PixelStrip(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
