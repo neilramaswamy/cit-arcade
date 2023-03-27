@@ -22,6 +22,7 @@ def create_map(panel_width, panel_height, panels_wide, panels_high) -> dict:
         # Illuminate the first 3 pixels of this panel
         for j in range(3):
             strip.setPixelColorRGB(root_led + j, 1, 0, 0)
+        strip.show()
         
         # Determine the corner and direction
         (corner, direction) = ask_for_orientation()

@@ -63,6 +63,7 @@ if __name__ == "__main__":
                 pixel = rm_pixels[i][j]  / 255
 
                 strip.setPixelColorRGB(strip_index, pixel[0], pixel[1], pixel[2])
+        strip.show()
 
         time.sleep(1)
 
