@@ -98,6 +98,10 @@ if __name__ == "__main__":
 
     if config.get('is_dev'):
         num_pixels = strip.numPixels()
+        # TODO(neil): This identity map will not work once we have multiple panels
+        # 
+        # Really, dev panels should snake as well so that we replicate the actual hardware, but
+        # that requires more work from Zack
         mapping = { i: i for i in range(num_pixels)}
     else:
         mapping = ensure_map()
