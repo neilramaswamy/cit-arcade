@@ -33,7 +33,7 @@ class CitArcadeGameDriver():
         return True
 
     def paint(self):
-        self.screen.fill("purple")
+        self.screen.fill((0, 0, 255))
 
         pygame.draw.circle(self.screen, "red", self.player_pos, 2)
 
