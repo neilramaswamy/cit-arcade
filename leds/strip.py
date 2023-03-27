@@ -1,4 +1,4 @@
-IS_DEV = True 
+from config.config import config
 
 strip = None
 
@@ -8,7 +8,7 @@ def get_strip():
     if strip is not None:
         return strip
     
-    if IS_DEV:
+    if config.get('is_dev'):
         from leds.dev import GUIPixelStrip 
         strip = GUIPixelStrip(None, None, None, None)
     else:
@@ -19,7 +19,7 @@ def get_strip():
     return strip
 
 def get_color():
-    if IS_DEV:
+    if config.get('is_dev'):
         from leds.dev import GUIColor 
         return GUIColor
     else:
