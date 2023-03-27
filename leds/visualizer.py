@@ -39,19 +39,24 @@ class Visualizer:
             plt.show()
             self.fig, self.ax = plt.subplots()
             self.ax.imshow(self.img)
-        else:
-            self.squares.remove()
-            self.circles.remove()
 
+            # Set up squares
             squares_list = [patches.Rectangle(tl, self.sub_grid_wh[0], self.sub_grid_wh[1]) for tl in self.sub_grid_tls]
-        squares_coll = collections.PatchCollection(squares_list, facecolors='#8008', zorder=1)
-        self.squares = self.ax.add_collection(squares_coll)
+            self.squares_coll = collections.PatchCollection(squares_list, facecolors='#fff8', zorder=1)
+            squares = self.ax.add_collection(self.squares_coll)
 
+            # Set up circles
             circles_list = [patches.Circle(xy, self.pixel_radius) for xy in self.pixel_xys]
-        circles_coll = collections.PatchCollection(circles_list, facecolors=colors, zorder=2)
-        self.circles = self.ax.add_collection(circles_coll)
+            self.circles_coll = collections.PatchCollection(circles_list, facecolors=colors, zorder=2)
+            circles = self.ax.add_collection(self.circles_coll)
 
-        plt.draw()
+        # Update colors
+        self.circles_coll.set_facecolors(colors)
+
+        # Required to give plt chance to update display;
+        # See https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.pause.html
+        plt.pause(0.1)
+
 
 # Helper functions
 
@@ -101,10 +106,13 @@ if __name__ == "__main__":
 
     num_pixels = horz_side_length * vert_side_length * horz_panels * vert_panels
 
-    input("Press [enter] to show first set of random colors.")
+    # input("Press [enter] to show first set of random colors.")
+    while True:
+        print("Displaying random colors.")
         visualizer.displayColors(np.random.random((num_pixels, 3)))
+        time.sleep(1)
 
-    input("Press [enter] to show next set of random colors.")
-    visualizer.displayColors(np.random.random((num_pixels, 3)))
+    # input("Press [enter] to show next set of random colors.")
+    # visualizer.displayColors(np.random.random((num_pixels, 3)))
 
-    input("Press [enter] to finish.")
+    # input("Press [enter] to finish.")
