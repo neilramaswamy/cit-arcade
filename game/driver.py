@@ -97,22 +97,28 @@ def render_to_strip(strip, rm_pixels, mapping):
 
 
 if __name__ == "__main__":
-    mapping = ensure_map()
-
     strip = get_strip()
 
-    updates = []
+    for i in range(strip.numPixels()):
+        strip.setPixelColor(i, Color(255, 0, 0))
+        strip.show()
+        time.sleep(0.5)
+
+    mapping = ensure_map()
+
+    updates = [Update(dx = 1), Update(dx = 1)]
     updates_lock = RLock()
 
     event_thread = Thread(name="event_receive", target=event_receive_thread, args=(updates, updates_lock))
     game = CitArcadeGameDriver(updates, updates_lock)
 
-
     # Run event thread in background
-    event_thread.start()
+    # event_thread.start()
 
-    while game.apply_updates():
-        render_to_strip(strip, game.get_pixels(), mapping)
-        time.sleep(1)
+    render_to_strip(strip, game.get_pixels(), mapping)
+    input("Press enter to continue...")
+
+    # while game.apply_updates():
+    #     time.sleep(2)
     
     event_thread.join()

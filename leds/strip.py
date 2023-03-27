@@ -1,4 +1,4 @@
-IS_DEV = True
+IS_DEV = False
 
 strip = None
 

@@ -25,9 +25,9 @@ class GUIPixelStrip(object):
 
         self.ready = False
 
-        self.side_length = 9 # display_conf.panel_side_length
-        self.horz_panels = 4 # display_conf.num_horizontal_panels
-        self.vert_panels = 4 # display_conf.num_vertical_panels
+        self.side_length = 10 # display_conf.panel_side_length
+        self.horz_panels = 1 # display_conf.num_horizontal_panels
+        self.vert_panels = 1 # display_conf.num_vertical_panels
 
         self.visualizer = Visualizer(
             self.side_length, 
@@ -82,7 +82,7 @@ class GUIPixelStrip(object):
         self.will_not_implement()
 
     def numPixels(self):
-        self.will_not_implement()
+        return self.num_pixels
 
     def getPixelColor(self, _):
         self.will_not_implement()
