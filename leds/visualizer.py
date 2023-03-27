@@ -14,7 +14,7 @@ class Visualizer:
         self.grid_tl = np.array([49, 212])
         self.grid_br = np.array([744, 914])
         self.grid_gap = 14
-        self.pixel_circle_max_fill_proportion = 0.85
+        self.pixel_circle_max_fill_proportion = 0.75
 
         # Derive values from the above
         self.sub_grid_tls, self.sub_grid_wh = getSubGrid(
