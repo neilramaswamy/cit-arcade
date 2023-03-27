@@ -47,7 +47,7 @@ class CitArcadeGameDriver():
     def get_pixels(self):
         self.screen.fill((0, 0, 255))
 
-        pygame.draw.circle(self.screen, (0, 255, 0), (4, 4), 2)
+        pygame.draw.circle(self.screen, (0, 255, 0), self.player_pos.xy, 2)
 
         pygame.display.flip()
 
@@ -58,6 +58,9 @@ class Update():
         self.dx = dx
         self.dy = dy
         self.stop = stop
+    
+    def __str__(self) -> str:
+        return f"Update(dx={self.dx}, dy={self.dy}, stop={self.stop})"
 
 def event_receive_thread(updates: list, updates_lock: RLock):
     while True:
