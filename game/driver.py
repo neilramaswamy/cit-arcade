@@ -16,7 +16,7 @@ class CitArcadeGameDriver():
         pygame.init()
         self.screen = pygame.display.set_mode((10, 9))
         self.clock = pygame.time.Clock()
-        self.player_pos = pygame.Vector2(1, 2)
+        self.player_pos = pygame.Vector2(3, 4)
 
         self.updates = updates
         self.updates_lock = updates_lock
@@ -30,8 +30,10 @@ class CitArcadeGameDriver():
         self.updates_lock.acquire()
         should_continue = True
 
-        for update in updates:
+        while len(updates) > 0:
+            update = updates.pop(0)
             print(f"Applying update {update}")
+
             if update.stop:
                 should_continue = False
                 break
@@ -41,18 +43,18 @@ class CitArcadeGameDriver():
             if update.dy != None:
                 self.player_pos.y += update.dy
 
+        updates
         self.updates_lock.release()
         return should_continue
 
     def get_pixels(self):
         self.screen.fill((0, 0, 255))
 
-        print(f"player pos is {self.player_pos}")
-        pygame.draw.line(self.screen, (0, 255, 0), (int(self.player_pos.x), int(self.player_pos.y)), (int(self.player_pos.x), int(self.player_pos.y)))
+        # TODO(neil): Fix this coordinate hack!
+        pygame.draw.circle(self.screen, (0, 255, 0), (int(self.player_pos.y), int(self.player_pos.x)), 2)
 
-        # pygame.display.flip()
-
-        return pygame.surfarray.array3d(self.screen)
+        arr = pygame.surfarray.array3d(self.screen)
+        return arr
 
 class Update():
     def __init__(self, dx = 0, dy = 0, stop: bool = False):
@@ -102,7 +104,7 @@ if __name__ == "__main__":
 
     mapping = ensure_map()
 
-    updates = [Update(dx = 1)]
+    updates = []
     updates_lock = RLock()
 
     event_thread = Thread(name="event_receive", target=event_receive_thread, args=(updates, updates_lock))
@@ -113,7 +115,4 @@ if __name__ == "__main__":
 
     while game.apply_updates():
         pixels = game.get_pixels()
-        print(f"game pixels: {pixels}")
-
         render_to_strip(strip, pixels, mapping)
-        time.sleep(2)
