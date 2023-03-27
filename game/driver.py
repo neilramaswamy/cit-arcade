@@ -15,7 +15,7 @@ class CitArcadeGameDriver():
         self.clock = pygame.time.Clock()
         self.running = True
 
-        self.player_pos = pygame.Vector2(self.screen.get_width() / 2, self.screen.get_height() / 2)
+        self.player_pos = pygame.Vector2(self.screen.get_width() // 2, self.screen.get_height() // 2)
     
     # updates is a list of custom-specified updates, since our updates don't come from Pygame
     # itself; they'll be coming over the network, probably
