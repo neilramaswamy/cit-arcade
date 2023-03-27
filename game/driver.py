@@ -3,8 +3,9 @@ import pygame
 from mapper.map import ensure_map
 import time
 from leds.strip import get_strip
+import os
 
-# os.environ["SDL_VIDEODRIVER"] = "dummy"
+os.environ["SDL_VIDEODRIVER"] = "dummy"
 
 # A remarkably simple game where we paint a red ball to the screen on top of a purple background.
 class CitArcadeGameDriver():
