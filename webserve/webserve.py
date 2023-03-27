@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, Response
 from threading import RLock
 from game.update import Update
 
@@ -6,7 +6,9 @@ def do_webserve(updates: list, updates_lock: RLock):
     app = Flask(__name__) 
 
     # Look ma, no flask_cors!
-    app.after_request(lambda r: r.set_header("Access-Control-Allow-Origin", "*"))
+    def after_request(r: Response):
+        r.access_control_allow_origin = "*"
+    app.after_request(after_request)
 
     def do_up():
         updates_lock.acquire()
