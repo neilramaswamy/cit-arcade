@@ -91,6 +91,8 @@ def render_to_strip(strip, rm_pixels, mapping):
             strip_index = mapping[rm_index]
 
             pixel = rm_pixels[i][j]
+            print(f"pixel {rm_index} is {pixel} (strip index {strip_index})")
+
             strip.setPixelColor(strip_index, Color(int(pixel[0]), int(pixel[1]), int(pixel[2])))
     
     strip.show()
@@ -98,11 +100,6 @@ def render_to_strip(strip, rm_pixels, mapping):
 
 if __name__ == "__main__":
     strip = get_strip()
-
-    for i in range(strip.numPixels()):
-        strip.setPixelColor(i, Color(255, 0, 0))
-        strip.show()
-        time.sleep(0.5)
 
     mapping = ensure_map()
 
@@ -115,10 +112,9 @@ if __name__ == "__main__":
     # Run event thread in background
     # event_thread.start()
 
-    render_to_strip(strip, game.get_pixels(), mapping)
-    input("Press enter to continue...")
+    while game.apply_updates():
+        pixels = game.get_pixels()
+        print(f"pixels are {pixels}")
 
-    # while game.apply_updates():
-    #     time.sleep(2)
-    
-    event_thread.join()
+        render_to_strip(strip, pixels, mapping)
+        time.sleep(2)
