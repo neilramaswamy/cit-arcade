@@ -111,8 +111,3 @@ if __name__ == "__main__":
         print("Displaying random colors.")
         visualizer.displayColors(np.random.random((num_pixels, 3)))
         time.sleep(1)
-
-    # input("Press [enter] to show next set of random colors.")
-    # visualizer.displayColors(np.random.random((num_pixels, 3)))
-
-    # input("Press [enter] to finish.")

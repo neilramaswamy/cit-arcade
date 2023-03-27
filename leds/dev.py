@@ -25,16 +25,18 @@ class GUIPixelStrip(object):
 
         self.ready = False
 
-        self.side_length = 10 # display_conf.panel_side_length
-        self.horz_panels = 1 # display_conf.num_horizontal_panels
-        self.vert_panels = 1 # display_conf.num_vertical_panels
+        self.horz_side_length = 9
+        self.vert_side_length = 10
+        self.horz_panels = 1
+        self.vert_panels = 1
 
         self.visualizer = Visualizer(
-            self.side_length, 
+            self.horz_side_length,
+            self.vert_side_length,
             self.horz_panels, 
             self.vert_panels)
         
-        self.num_pixels = self.side_length ** 2 * self.horz_panels * self.vert_panels
+        self.num_pixels = (self.horz_side_length * self.vert_side_length) * self.horz_panels * self.vert_panels
         self.colors = np.zeros((self.num_pixels, 3))
 
     def will_not_implement(self):

@@ -4,7 +4,10 @@ from mapper.map import ensure_map
 import time
 from leds.strip import get_strip, get_color
 from threading import Thread, RLock
+from webserve.webserve import do_webserve
+from game.update import Update
 import os
+from config.config import config
 
 Color = get_color()
 
@@ -56,15 +59,6 @@ class CitArcadeGameDriver():
         arr = pygame.surfarray.array3d(self.screen)
         return arr
 
-class Update():
-    def __init__(self, dx = 0, dy = 0, stop: bool = False):
-        self.dx = dx
-        self.dy = dy
-        self.stop = stop
-
-    def __str__(self) -> str:
-        return f"Update(dx={self.dx}, dy={self.dy}, stop={self.stop})"
-
 def event_receive_thread(updates: list, updates_lock: RLock):
     while True:
         command = input("Type (u/d/l/r/stop): ")
@@ -102,12 +96,16 @@ def render_to_strip(strip, rm_pixels, mapping):
 if __name__ == "__main__":
     strip = get_strip()
 
-    mapping = ensure_map()
+    if config.get('is_dev'):
+        num_pixels = strip.numPixels()
+        mapping = { i: i for i in range(num_pixels)}
+    else:
+        mapping = ensure_map()
 
     updates = []
     updates_lock = RLock()
 
-    event_thread = Thread(name="event_receive", target=event_receive_thread, args=(updates, updates_lock))
+    event_thread = Thread(name="webserve", target=do_webserve, args=(updates, updates_lock))
     game = CitArcadeGameDriver(updates, updates_lock)
 
     # Run event thread in background

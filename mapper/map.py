@@ -1,7 +1,8 @@
 from typing import Tuple
 import os
 import pickle
-from leds.strip import get_strip 
+from leds.strip import get_strip, get_color
+from config.config import config
 
 # Top-level directory
 STORE_PATH = os.path.expanduser("~/.citarcade")
@@ -12,6 +13,7 @@ def create_map(panel_width, panel_height, panels_wide, panels_high) -> dict:
 
     strip = get_strip()
     strip.begin()
+    Color = get_color()
 
     num_panels = panels_wide * panels_high
     num_leds = panel_width * panel_height
@@ -21,7 +23,7 @@ def create_map(panel_width, panel_height, panels_wide, panels_high) -> dict:
 
         # Illuminate the first 3 pixels of this panel
         for j in range(3):
-            strip.setPixelColorRGB(root_led + j, 1, 0, 0)
+            strip.setPixelColor(root_led + j, Color(255, 0, 0))
         strip.show()
         
         # Determine the corner and direction
