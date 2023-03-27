@@ -5,7 +5,10 @@ const getAPIClient = () => {
   console.log(`API URL is ${apiUrl}`);
 
   const sendRequest = async (path: string) => {
-    const response = await fetch(join(apiUrl, path));
+    const destination = join(apiUrl, path);
+
+    console.log(`Joined path is ${destination}`);
+    const response = await fetch(destination);
     return response;
   };
 
