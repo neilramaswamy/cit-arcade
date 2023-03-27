@@ -2,10 +2,10 @@ import { join } from "path";
 
 const getAPIClient = () => {
   console.log(process.env);
-  const remoteURL = process.env.remoteURL || "";
+  const apiUrl = process.env.API_URL || "";
 
   const sendRequest = async (path: string) => {
-    const response = await fetch(join(remoteURL, path));
+    const response = await fetch(join(apiUrl, path));
     return response;
   };
 
