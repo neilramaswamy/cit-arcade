@@ -1,9 +1,11 @@
 from flask import Flask
 from threading import RLock
 from game.update import Update
+from flask_cors import CORS
 
 def do_webserve(updates: list, updates_lock: RLock):
     app = Flask(__name__) 
+    CORS(app)
 
     def do_up():
         updates_lock.acquire()
