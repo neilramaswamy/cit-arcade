@@ -5,7 +5,7 @@ import numpy as np
 import time
 
 class Visualizer:
-    def __init__(self, side_length, horz_panels, vert_panels):
+    def __init__(self, horz_side_length, vert_side_length, horz_panels, vert_panels):
         
         self.fig = None
         
@@ -24,12 +24,13 @@ class Visualizer:
             self.grid_br,
             self.grid_gap)
         self.pixel_xys = getPixelXYs(
-            side_length,
+            horz_side_length,
+            vert_side_length,
             self.sub_grid_tls,
             self.sub_grid_wh)
         self.pixel_radius = np.min(
-            self.pixel_circle_max_fill_proportion *
-            self.sub_grid_wh / side_length / 2)
+            self.pixel_circle_max_fill_proportion / 2 *
+            np.divide(self.sub_grid_wh, (horz_side_length, vert_side_length)))
         
     def displayColors(self, colors):
         
@@ -42,11 +43,11 @@ class Visualizer:
             self.squares.remove()
             self.circles.remove()
 
-        squares_list = [patches.Rectangle(tl, self.sub_grid_wh[0], self.sub_grid_wh[1]) for tl in self.sub_grid_tls]
+            squares_list = [patches.Rectangle(tl, self.sub_grid_wh[0], self.sub_grid_wh[1]) for tl in self.sub_grid_tls]
         squares_coll = collections.PatchCollection(squares_list, facecolors='#8008', zorder=1)
         self.squares = self.ax.add_collection(squares_coll)
 
-        circles_list = [patches.Circle(xy, self.pixel_radius) for xy in self.pixel_xys]
+            circles_list = [patches.Circle(xy, self.pixel_radius) for xy in self.pixel_xys]
         circles_coll = collections.PatchCollection(circles_list, facecolors=colors, zorder=2)
         self.circles = self.ax.add_collection(circles_coll)
 
@@ -74,14 +75,14 @@ def getSubGrid(h_panels, v_panels, grid_tl, grid_br, grid_gap):
 
     return sub_grid_tls, sub_grid_wh
 
-def getPixelXYs(side_length, sub_grid_tls, sub_grid_wh):
+def getPixelXYs(horz_side_length, vert_side_length, sub_grid_tls, sub_grid_wh):
     
-    pixel_spacing = sub_grid_wh / side_length
+    pixel_spacing = sub_grid_wh / (horz_side_length, vert_side_length)
     
     # For one panel
     xv, yv = np.meshgrid(
-        np.linspace(0, 1, side_length + 1)[:-1],
-        np.linspace(0, 1, side_length + 1)[:-1])
+        np.linspace(0, 1, horz_side_length + 1)[:-1],
+        np.linspace(0, 1, vert_side_length + 1)[:-1])
     panel_pixel_xys = np.dstack((xv,yv)) * sub_grid_wh + pixel_spacing / 2
 
     # For all panels
@@ -91,16 +92,17 @@ def getPixelXYs(side_length, sub_grid_tls, sub_grid_wh):
  
 if __name__ == "__main__":
     
-    side_length = 9
+    horz_side_length = 9
+    vert_side_length = 10
     horz_panels = 4
     vert_panels = 4
 
-    visualizer = Visualizer(side_length, horz_panels, vert_panels)
+    visualizer = Visualizer(horz_side_length, vert_side_length, horz_panels, vert_panels)
 
-    num_pixels = side_length ** 2 * horz_panels * vert_panels
+    num_pixels = horz_side_length * vert_side_length * horz_panels * vert_panels
 
     input("Press [enter] to show first set of random colors.")
-    visualizer.displayColors(np.random.random((num_pixels, 3)))
+        visualizer.displayColors(np.random.random((num_pixels, 3)))
 
     input("Press [enter] to show next set of random colors.")
     visualizer.displayColors(np.random.random((num_pixels, 3)))
