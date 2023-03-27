@@ -49,7 +49,7 @@ class CitArcadeGameDriver():
     def get_pixels(self):
         self.screen.fill((0, 0, 255))
 
-        pygame.draw.rect(self.screen, (255, 0, 0), (4, 4), 2)
+        pygame.draw.circle(self.screen, (0, 255, 0), (4, 4), 2)
 
         pygame.display.flip()
 
