@@ -40,7 +40,7 @@ class CitArcadeGameDriver():
 
             if update.dx != None:
                 self.player_pos.x += update.dx
-            if update.py != None:
+            if update.dy != None:
                 self.player_pos.y += update.dy
         
         self.updates_lock.release()
