@@ -16,7 +16,7 @@ class CitArcadeGameDriver():
         pygame.init()
         self.screen = pygame.display.set_mode((10, 9))
         self.clock = pygame.time.Clock()
-        self.player_pos = pygame.Vector2(4, 5)
+        self.player_pos = pygame.Vector2(1, 2)
 
         self.updates = updates
         self.updates_lock = updates_lock
@@ -28,29 +28,29 @@ class CitArcadeGameDriver():
     # Returns whether to continue running
     def apply_updates(self) -> bool:
         self.updates_lock.acquire()
-        should_continue = True 
+        should_continue = True
 
         for update in updates:
             print(f"Applying update {update}")
             if update.stop:
-                should_continue = False 
+                should_continue = False
                 break
 
             if update.dx != None:
                 self.player_pos.x += update.dx
             if update.dy != None:
                 self.player_pos.y += update.dy
-        
+
         self.updates_lock.release()
-        return should_continue 
+        return should_continue
 
     def get_pixels(self):
         self.screen.fill((0, 0, 255))
 
-        # pygame.draw.circle(self.screen, (0, 255, 0), (int(self.player_pos.x), int(self.player_pos.y)), 2)
-        pygame.draw.circle(self.screen, (0, 255, 0), (3, 7), 2)
+        print(f"player pos is {self.player_pos}")
+        pygame.draw.line(self.screen, (0, 255, 0), (int(self.player_pos.x), int(self.player_pos.y)), (int(self.player_pos.x), int(self.player_pos.y)))
 
-        pygame.display.flip()
+        # pygame.display.flip()
 
         return pygame.surfarray.array3d(self.screen)
 
@@ -59,14 +59,14 @@ class Update():
         self.dx = dx
         self.dy = dy
         self.stop = stop
-    
+
     def __str__(self) -> str:
         return f"Update(dx={self.dx}, dy={self.dy}, stop={self.stop})"
 
 def event_receive_thread(updates: list, updates_lock: RLock):
     while True:
         command = input("Type (u/d/l/r/stop): ")
-        
+
         update = None
         if command == "u":
             update = Update(dy = -1)
@@ -78,7 +78,7 @@ def event_receive_thread(updates: list, updates_lock: RLock):
             update = Update(dx = 1)
         elif command == "stop":
             update = Update(stop = True)
-        
+
         updates_lock.acquire()
         updates.append(update)
         updates_lock.release()
@@ -93,7 +93,7 @@ def render_to_strip(strip, rm_pixels, mapping):
             pixel = rm_pixels[i][j]
 
             strip.setPixelColor(strip_index, Color(int(pixel[0]), int(pixel[1]), int(pixel[2])))
-    
+
     strip.show()
 
 
@@ -102,7 +102,7 @@ if __name__ == "__main__":
 
     mapping = ensure_map()
 
-    updates = [Update(dx = 1), Update(dx = 1)]
+    updates = [Update(dx = 1)]
     updates_lock = RLock()
 
     event_thread = Thread(name="event_receive", target=event_receive_thread, args=(updates, updates_lock))
