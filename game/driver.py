@@ -14,7 +14,7 @@ os.environ["SDL_VIDEODRIVER"] = "dummy"
 class CitArcadeGameDriver():
     def __init__(self, updates: list, updates_lock: RLock):
         pygame.init()
-        self.screen = pygame.display.set_mode((9, 10))
+        self.screen = pygame.display.set_mode((10, 9))
         self.clock = pygame.time.Clock()
         self.player_pos = pygame.Vector2(4, 5)
 
