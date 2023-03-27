@@ -1,4 +1,4 @@
-import { join } from "path";
+import join from "url-join";
 
 const getAPIClient = () => {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
