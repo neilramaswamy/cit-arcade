@@ -22,4 +22,4 @@ def do_webserve(updates: list, updates_lock: RLock):
     app.add_url_rule("/up", "do_up", do_up)
     app.add_url_rule("/down", "do_down", do_down)
 
-    app.run(port=8000) 
+    app.run(port=8160)
