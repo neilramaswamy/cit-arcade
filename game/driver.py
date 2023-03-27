@@ -113,7 +113,7 @@ if __name__ == "__main__":
 
     while game.apply_updates():
         pixels = game.get_pixels()
-        print(f"game pixels: {pixels}"")
+        print(f"game pixels: {pixels}")
 
         render_to_strip(strip, pixels, mapping)
         time.sleep(2)
