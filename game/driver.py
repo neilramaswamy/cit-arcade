@@ -27,8 +27,6 @@ class CitArcadeGameDriver():
     #
     # Returns whether to continue running
     def apply_updates(self) -> bool:
-        print("about to apply updates")
-
         self.updates_lock.acquire()
         should_continue = True 
 
@@ -81,8 +79,6 @@ def event_receive_thread(updates: list, updates_lock: RLock):
         updates.append(update)
         updates_lock.release()
 
-        time.sleep(0.01)
-
 def render_to_strip(strip, rm_pixels, mapping):
     for i in range(len(rm_pixels)):
         row = rm_pixels[i]
@@ -109,7 +105,7 @@ if __name__ == "__main__":
     game = CitArcadeGameDriver(updates, updates_lock)
 
     # Run event thread in background
-    # event_thread.start()
+    event_thread.start()
 
     while game.apply_updates():
         pixels = game.get_pixels()
