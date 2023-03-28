@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from leds.visualizer import Visualizer
+from config.config import config
 
 def GUIColor(red, green, blue, white=0):
     """Convert the provided red, green, blue color to a 24-bit color value.
@@ -11,8 +12,8 @@ def GUIColor(red, green, blue, white=0):
 
 class GUIPixelStrip(object):
 
-    def __init__(self, display_conf, one_to_two_map, num,
-            pin, freq_hz=800000, dma=10, invert=False, brightness=255, channel=0,
+    def __init__(self,
+            pin=18, freq_hz=800000, dma=10, invert=False, brightness=255, channel=0,
             strip_type=None, gamma=None):
         """Class to represent a SK6812/WS281x LED display.  Num should be the
         number of pixels in the display, and pin should be the GPIO pin connected
@@ -22,13 +23,12 @@ class GUIPixelStrip(object):
         specifying if the signal line should be inverted (default False), and
         channel, the PWM channel to use (defaults to 0).
         """
-
         self.ready = False
 
-        self.horz_side_length = 9
-        self.vert_side_length = 10
-        self.horz_panels = 1
-        self.vert_panels = 1
+        self.horz_side_length = config.get('horz_side_length')
+        self.vert_side_length = config.get('vert_side_length')
+        self.horz_panels = config.get('horz_panels')
+        self.vert_panels = config.get('vert_panels')
 
         self.visualizer = Visualizer(
             self.horz_side_length,

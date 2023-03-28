@@ -27,10 +27,17 @@ def create_map(panel_width, panel_height, panels_wide, panels_high) -> dict:
         strip.show()
         
         # Determine the corner and direction
-        (panel_index, corner, direction) = ask_for_orientation(num_panels)
+        if config.get('is_dev'):
+            (panel_index, corner, direction) = (i, 0, "D")
+            pass
+        else:
+            (panel_index, corner, direction) = ask_for_orientation(num_panels)
+
         rm_root = derive_rm_root(panel_index, panel_width, panel_height, panels_wide, panels_high)
+        print(f"rm_root for panel {i} is {rm_root}")
 
         panel_map = get_map_from_orientation(strip_root, rm_root, panel_width, panel_height, panels_wide, panels_high, corner, direction)
+        print(f"Panel for {i} is {panel_map}")
         for k, v in panel_map.items():
             mapping[k] = v
 
@@ -43,14 +50,15 @@ def derive_rm_root(panel_index, panel_width, panel_height, panels_wide, panels_h
 
     num_pixels_per_panel = panel_width * panel_height
 
-    return (display_row * num_pixels_per_panel) + (display_col * panel_width)
+    return (display_row * (panels_wide * num_pixels_per_panel)) + (display_col * panel_width)
 
 # A panel's mapping is determined by two factors: its positioning within the entire grid, and its
 # snaking pattern. The strip_root gives the first pixels in this panel's strip index, and the
 # rm_root gives the row-major index of that pixel.
 def get_map_from_orientation(strip_root, rm_root, panel_width, panel_height, panels_wide, panels_high, corner, direction) -> dict:
     assert(corner >= 0 and corner <= 3)
-    assert(direction == "H" or direction == "V")
+    # Horizontal, Vertical, Development
+    assert(direction == "H" or direction == "V" or direction == "D")
 
     # from row-major to strip index
     mapping = {}
@@ -68,6 +76,16 @@ def get_map_from_orientation(strip_root, rm_root, panel_width, panel_height, pan
                 # The row-major vertical offset is a function of how wide the *entire* display is
                 rm_vert_offset = (i * (panel_width * panels_wide))
                 rm_index = rm_root + rm_vert_offset + horiz_offset
+
+                strip_offset = (i * panel_width) + j
+                mapping[rm_index] = strip_root + strip_offset 
+    elif corner == 0 and direction == "D":
+        for i in range(panel_height):
+            for j in range(panel_width):
+                # The row-major vertical offset is a function of how wide the *entire* display is
+                rm_horiz_offset = j
+                rm_vert_offset = (i * (panel_width * panels_wide))
+                rm_index = rm_root + rm_vert_offset + rm_horiz_offset
 
                 strip_offset = (i * panel_width) + j
                 mapping[rm_index] = strip_root + strip_offset 
@@ -107,7 +125,7 @@ def ask_for_orientation(num_panels) -> Tuple[int, int, str]:
         direction_str = input("Direction of LEDs: ")
 
         if direction_str not in valid_directions:
-            print("Direction must be H or V")
+            print("Direction must be H, V, or D")
         else:
             direction = direction_str
 
@@ -151,7 +169,6 @@ def ensure_map() -> dict:
         loaded_map = create_map(panel_width, panel_height, panels_wide, panels_high)
         save_map(name, loaded_map)
 
-    print(f"Mapping is {str(loaded_map)}")
     return loaded_map
 
 if __name__ == "__main__":
@@ -187,7 +204,6 @@ if __name__ == "__main__":
     if command == "I":
         name = input("Name of calibration: ")
         loaded_map = load_map(name)
-        print(f"Mapping is {str(loaded_map)}")
     elif command == "C":
         ensure_map()
     else:

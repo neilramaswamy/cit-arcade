@@ -29,7 +29,28 @@ def do_webserve(updates: list, updates_lock: RLock):
 
         return "down"
 
+    def do_right():
+        print("Recevied RIGHT command")
+
+        updates_lock.acquire()
+        updates.append(Update(dx = 1))
+        updates_lock.release()
+
+        return "right"
+    
+    def do_left():
+        print("Recevied LEFT command")
+
+        updates_lock.acquire()
+        updates.append(Update(dx = -1))
+        updates_lock.release()
+
+        return "left"
+
+
     app.add_url_rule("/up", "do_up", do_up)
     app.add_url_rule("/down", "do_down", do_down)
+    app.add_url_rule("/right", "do_right", do_right)
+    app.add_url_rule("/left", "do_left", do_left)
 
     app.run(port=8160)

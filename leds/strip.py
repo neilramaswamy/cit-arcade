@@ -10,7 +10,7 @@ def get_strip():
     
     if config.get('is_dev'):
         from leds.dev import GUIPixelStrip 
-        strip = GUIPixelStrip(None, None, None, None)
+        strip = GUIPixelStrip()
     else:
         from leds.prod import get_prod_strip
         strip = get_prod_strip()
