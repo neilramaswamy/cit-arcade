@@ -1,36 +1,35 @@
+from flask import Flask, Response
 from threading import RLock
 from game.update import Update
-from concurrent import futures
 
-import grpc
-from . import webserve_pb2_grpc, webserve_pb2
+def do_webserve(updates: list, updates_lock: RLock):
+    app = Flask(__name__) 
 
-PORT = 8160
+    # Look ma, no flask_cors!
+    def after_request(r: Response):
+        r.access_control_allow_origin = "*"
+        return r
+    app.after_request(after_request)
 
-class WebserveServicer(webserve_pb2_grpc.WebserveServicer):
-    def __init__(self, updates: list, updates_lock: RLock):
-        self.updates = updates
-        self.updates_lock = updates_lock
+    def do_up():
+        print("Recevied UP command")
 
-    def MoveBall(self, request: webserve_pb2.MoveBallRequest, context) -> webserve_pb2.MoveBallResponse:
-        self.updates_lock.acquire()
-        self.updates.append(Update(dx = request.x, dy = request.y))
-        self.updates_lock.release()
+        updates_lock.acquire()
+        updates.append(Update(dy = -1))
+        updates_lock.release()
 
-        return webserve_pb2.MoveBallResponse()
+        return "up"
+    
+    def do_down():
+        print("Recevied DOWN command")
 
-def start_grpc(updates: list, updates_lock: RLock):
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    webserve_pb2_grpc.add_WebserveServicer_to_server(WebserveServicer(updates, updates_lock), server)
+        updates_lock.acquire()
+        updates.append(Update(dy = 1))
+        updates_lock.release()
 
-    server.add_insecure_port(f"[::]:{PORT}")
-    server.start()
+        return "down"
 
-    print(f"Started webserve gRPC server on port {PORT}")
-    server.wait_for_termination()
+    app.add_url_rule("/up", "do_up", do_up)
+    app.add_url_rule("/down", "do_down", do_down)
 
-if __name__ == '__main__':
-    updates = []
-    updates_lock = RLock()
-
-    start_grpc(updates, updates_lock)
+    app.run(port=8160)

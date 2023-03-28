@@ -25,9 +25,9 @@ class GUIPixelStrip(object):
 
         self.ready = False
 
-        self.horz_side_length = 3
-        self.vert_side_length = 3
-        self.horz_panels = 2
+        self.horz_side_length = 9
+        self.vert_side_length = 10
+        self.horz_panels = 1
         self.vert_panels = 1
 
         self.visualizer = Visualizer(

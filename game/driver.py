@@ -4,13 +4,10 @@ from mapper.map import ensure_map
 import time
 from leds.strip import get_strip, get_color
 from threading import Thread, RLock
-from concurrent import futures
-
+from webserve.webserve import do_webserve
 from game.update import Update
 import os
 from config.config import config
-
-from webserve.webserve import start_grpc 
 
 Color = get_color()
 
@@ -112,11 +109,11 @@ if __name__ == "__main__":
     updates = []
     updates_lock = RLock()
 
-    grpc_thread = Thread(name="webserve-grpc", target=start_grpc, args=(updates, updates_lock))
+    event_thread = Thread(name="webserve", target=do_webserve, args=(updates, updates_lock))
     game = CitArcadeGameDriver(updates, updates_lock)
 
-    # Run gRPC thread in background
-    grpc_thread.start()
+    # Run event thread in background
+    event_thread.start()
 
     while game.apply_updates():
         pixels = game.get_pixels()
