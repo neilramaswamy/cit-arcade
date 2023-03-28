@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+service Webserve {
+    rpc MoveBall (MoveBallRequest) returns (MoveBallResponse) {}
+}
+
+message MoveBallRequest {
+    int32 x = 1;
+    int32 y = 2;
+}
+
+// Empty response for now
+message MoveBallResponse {}
