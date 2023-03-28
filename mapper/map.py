@@ -34,10 +34,8 @@ def create_map(panel_width, panel_height, panels_wide, panels_high) -> dict:
             (panel_index, corner, direction) = ask_for_orientation(num_panels)
 
         rm_root = derive_rm_root(panel_index, panel_width, panel_height, panels_wide, panels_high)
-        print(f"rm_root for panel {i} is {rm_root}")
 
         panel_map = get_map_from_orientation(strip_root, rm_root, panel_width, panel_height, panels_wide, panels_high, corner, direction)
-        print(f"Panel for {i} is {panel_map}")
         for k, v in panel_map.items():
             mapping[k] = v
 

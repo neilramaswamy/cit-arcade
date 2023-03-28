@@ -12,11 +12,12 @@ from config.config import config
 
 Color = get_color()
 
-# os.environ["SDL_VIDEODRIVER"] = "dummy"
+# When set to "dummy", the PyGame window will not appear
+os.environ["SDL_VIDEODRIVER"] = "dummy"
 
 # A remarkably simple game where we paint a red ball to the screen on top of a purple background.
 class CitArcadeGameDriver():
-    def __init__(self, width: int, height: int, updates: list, updates_lock: RLock):
+    def __init__(self, height: int, width: int, updates: list, updates_lock: RLock):
         pygame.init()
         self.screen = pygame.display.set_mode((width, height), 0, 32)
 
@@ -24,7 +25,7 @@ class CitArcadeGameDriver():
         self.image = pygame.transform.scale(self.image, (width, height))
 
         self.clock = pygame.time.Clock()
-        self.player_pos = pygame.Vector2(1, 3)
+        self.player_pos = pygame.Vector2(3, 10)
 
         self.updates = updates
         self.updates_lock = updates_lock
@@ -58,17 +59,13 @@ class CitArcadeGameDriver():
     def get_pixels(self):
         self.screen.fill((0, 0, 0))
 
-        # # TODO(neil): Fix this coordinate hack!
-        # pygame.draw.circle(self.screen, (0, 255, 0), (int(self.player_pos.x), int(self.player_pos.y)), 2)
-        # pygame.display.update()
-
-        self.screen.blit(self.image, (int(self.player_pos.x), int(self.player_pos.y)))
+        pygame.draw.circle(self.screen, (0, 255, 0), (int(self.player_pos.x), int(self.player_pos.y)), 2)
         pygame.display.update()
 
+        # For some reason, we get back transposed coordinates from surfarray, so we transpose here
+        # to fix that.
         arr = pygame.surfarray.array3d(self.screen)
-        tarr = np.transpose(arr, axes=(1, 0, 2))
-
-        return tarr
+        return np.transpose(arr, axes=(1, 0, 2))
 
 def event_receive_thread(updates: list, updates_lock: RLock):
     while True:
@@ -91,24 +88,19 @@ def event_receive_thread(updates: list, updates_lock: RLock):
         updates_lock.release()
 
 def render_to_strip(strip, rm_pixels, mapping):
-    err = False
     for i in range(len(rm_pixels)):
         row = rm_pixels[i]
         for j in range(len(row)):
             rm_index = (i * len(row)) + j
+
             if rm_index not in mapping:
-                err = True
-                print(f"Index {rm_index} not in mapping")
-                continue
+                raise Exception(f"Index {rm_index} is not in mapping: double check Game board dimensions or the map you're using.")
             else:
                 strip_index = mapping[rm_index]
 
             pixel = rm_pixels[i][j]
 
             strip.setPixelColor(strip_index, Color(int(pixel[0]), int(pixel[1]), int(pixel[2])))
-
-    if err:
-        raise Exception("foo")
     strip.show()
 
 
@@ -120,7 +112,7 @@ if __name__ == "__main__":
     updates_lock = RLock()
 
     event_thread = Thread(name="webserve", target=do_webserve, args=(updates, updates_lock))
-    game = CitArcadeGameDriver(40, 40, updates, updates_lock)
+    game = CitArcadeGameDriver(40, 36, updates, updates_lock)
 
     # Run event thread in background
     event_thread.start()
