@@ -27,7 +27,9 @@ def create_map(panel_width, panel_height, panels_wide, panels_high) -> dict:
         strip.show()
         
         # Determine the corner and direction
-        (corner, direction) = ask_for_orientation()
+        (panel_index, corner, direction) = ask_for_orientation()
+
+        # TODO(neil): Need to actually use the panel_index
 
         panel_map = get_map_from_orientation(root_led, panel_width, panel_height, corner, direction)
         for k, v in panel_map.items():
@@ -64,9 +66,17 @@ def get_map_from_orientation(root_led, panel_width, panel_height, corner, direct
 # 
 # The corner is (0, 1, 2, 3) for (top left, top right, bottom left, bottom right). The orientation
 # is either horizontal or vertical.
-def ask_for_orientation() -> Tuple[int, str]:
+def ask_for_orientation(num_panels) -> Tuple[int, int, str]:
     valid_corners = [str(i) for i in range(4)]
     valid_directions = ["H", "V"]
+
+    panel_index = -1
+    while panel_index < 0:
+        panel_str = input("Panel row-major index: ")
+        if int(panel_str) >= num_panels:
+            print(f"Input must be in range [0, {num_panels})")
+        else:
+            panel_index = int(panel_str)
 
     corner = -1
     while corner < 0:
@@ -86,7 +96,7 @@ def ask_for_orientation() -> Tuple[int, str]:
         else:
             direction = direction_str
 
-    return (corner, direction)
+    return (panel_index, corner, direction)
 
 def save_map(name: str, mapping: dict):
     path = os.path.join(STORE_PATH, name)
