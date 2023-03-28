@@ -19,26 +19,36 @@ def create_map(panel_width, panel_height, panels_wide, panels_high) -> dict:
     num_leds = panel_width * panel_height
 
     for i in range(num_panels):
-        root_led = i * num_leds
+        strip_root = i * num_leds
 
         # Illuminate the first 3 pixels of this panel
         for j in range(3):
-            strip.setPixelColor(root_led + j, Color(255, 0, 0))
+            strip.setPixelColor(strip_root + j, Color(255, 0, 0))
         strip.show()
         
         # Determine the corner and direction
-        (panel_index, corner, direction) = ask_for_orientation()
+        (panel_index, corner, direction) = ask_for_orientation(num_panels)
+        rm_root = derive_rm_root(panel_index, panel_width, panel_height, panels_wide, panels_high)
 
-        # TODO(neil): Need to actually use the panel_index
-
-        panel_map = get_map_from_orientation(root_led, panel_width, panel_height, corner, direction)
+        panel_map = get_map_from_orientation(strip_root, rm_root, panel_width, panel_height, panels_wide, panels_high, corner, direction)
         for k, v in panel_map.items():
             mapping[k] = v
 
     return mapping
 
+def derive_rm_root(panel_index, panel_width, panel_height, panels_wide, panels_high) -> int:
+    # Which row/col (in the entire display) does panel_index reside on
+    display_row = panel_index // panels_wide
+    display_col = panel_index % panels_wide
 
-def get_map_from_orientation(root_led, panel_width, panel_height, corner, direction) -> dict:
+    num_pixels_per_panel = panel_width * panel_height
+
+    return (display_row * num_pixels_per_panel) + (display_col * panel_width)
+
+# A panel's mapping is determined by two factors: its positioning within the entire grid, and its
+# snaking pattern. The strip_root gives the first pixels in this panel's strip index, and the
+# rm_root gives the row-major index of that pixel.
+def get_map_from_orientation(strip_root, rm_root, panel_width, panel_height, panels_wide, panels_high, corner, direction) -> dict:
     assert(corner >= 0 and corner <= 3)
     assert(direction == "H" or direction == "V")
 
@@ -48,14 +58,19 @@ def get_map_from_orientation(root_led, panel_width, panel_height, corner, direct
     if corner == 0 and direction == "H":
         for i in range(panel_height):
             for j in range(panel_width):
-                rm_index = root_led + ((i * panel_width) + j)
-
+                # Because of the snaking pattern, how far we are from the left (i.e. horiz_offset)
+                # is not simply j. It's j on even rows, and j from the right on odd rows.
                 if i % 2 == 0:
-                    strip_index = (i * panel_width) + j
+                    horiz_offset = j
                 else:
-                    strip_index = (i * panel_width) + ((panel_width - 1) - j)
-                    
-                mapping[rm_index] = strip_index
+                    horiz_offset = ((panel_width - 1) - j)
+
+                # The row-major vertical offset is a function of how wide the *entire* display is
+                rm_vert_offset = (i * (panel_width * panels_wide))
+                rm_index = rm_root + rm_vert_offset + horiz_offset
+
+                strip_offset = (i * panel_width) + j
+                mapping[rm_index] = strip_root + strip_offset 
     else:
         raise RuntimeError("Not yet implemented")
 
@@ -131,7 +146,7 @@ def ensure_map() -> dict:
         panel_width = int(input("Panel width (number of LEDs): "))
         panel_height = int(input("Panel height (number of LEDs): "))
         panels_wide = int(input("Number of panels across: "))
-        panels_high = int(input("NUmber of panels high: "))
+        panels_high = int(input("Number of panels high: "))
 
         loaded_map = create_map(panel_width, panel_height, panels_wide, panels_high)
         save_map(name, loaded_map)
@@ -140,6 +155,34 @@ def ensure_map() -> dict:
     return loaded_map
 
 if __name__ == "__main__":
+    # Basic test for get_map_from_orientation
+
+    # First test: 1x2 panel display, each panel is 3x3. Both have oreintation (0, H).
+    first_panel = get_map_from_orientation(strip_root=0, rm_root=0, panel_width=3, panel_height=3,
+                                           panels_wide=2, panels_high=1, corner=0, direction="H")
+    # Expected: { 0: 0, 1: 1, 2: 2, 8: 3, 7: 4, 6: 5, 12: 6, 13: 7, 14: 8}
+    derive_rm_root(panel_index=0, panel_width=3, panel_height=3, panels_wide=2, panels_high=1)
+    # Expected: 0
+
+    second_panel = get_map_from_orientation(strip_root=9, rm_root=3, panel_width=3, panel_height=3,
+                                           panels_wide=2, panels_high=1, corner=0, direction="H")
+    # Expected: { 3: 9, 4: 10, 5: 11, 11: 12, 10: 13, 9: 14, 15: 15, 16: 16, 17: 17}
+    derive_rm_root(panel_index=1, panel_width=3, panel_height=3, panels_wide=2, panels_high=1)
+    # Expected: 3
+
+
+    # Second test: stack the panels vertically (2 x 1)
+    first_panel_2 = get_map_from_orientation(strip_root=0, rm_root=0, panel_width=3, panel_height=3,
+                                           panels_wide=1, panels_high=2, corner=0, direction="H")
+    # Expected: { 0: 0, 1: 1, 2: 2, 5: 3, 4: 4, 3: 5, 6: 6, 7: 7, 8: 8}
+    derive_rm_root(panel_index=0, panel_width=3, panel_height=3, panels_wide=1, panels_high=2)
+    # Expected: 0
+    second_panel_2 = get_map_from_orientation(strip_root=9, rm_root=9, panel_width=3, panel_height=3,
+                                           panels_wide=1, panels_high=2, corner=0, direction="H")
+    # Expected: { 9: 9, 10: 10, 11: 11, 14: 12, 13: 13, 12: 14, 15: 15, 16: 16, 17: 17}
+    derive_rm_root(panel_index=1, panel_width=3, panel_height=3, panels_wide=1, panels_high=2)
+    # Expected: 9
+
     command = input("Inspect map or create new? [I/C]: ")
     if command == "I":
         name = input("Name of calibration: ")
