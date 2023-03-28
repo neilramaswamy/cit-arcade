@@ -21,11 +21,11 @@ class CitArcadeGameDriver():
         pygame.init()
         self.screen = pygame.display.set_mode((width, height), 0, 32)
 
-        self.image = pygame.image.load("game/assets/brown.png")
+        self.image = pygame.image.load("game/assets/logo.png").convert_alpha()
         self.image = pygame.transform.scale(self.image, (width, height))
 
         self.clock = pygame.time.Clock()
-        self.player_pos = pygame.Vector2(3, 10)
+        self.player_pos = pygame.Vector2(0, 0)
 
         self.updates = updates
         self.updates_lock = updates_lock
@@ -59,7 +59,9 @@ class CitArcadeGameDriver():
     def get_pixels(self):
         self.screen.fill((0, 0, 0))
 
-        pygame.draw.circle(self.screen, (0, 255, 0), (int(self.player_pos.x), int(self.player_pos.y)), 2)
+        # pygame.draw.circle(self.screen, (0, 255, 0), (int(self.player_pos.x), int(self.player_pos.y)), 2)
+
+        self.screen.blit(self.image, (int(self.player_pos.x), int(self.player_pos.y)))
         pygame.display.update()
 
         # For some reason, we get back transposed coordinates from surfarray, so we transpose here
