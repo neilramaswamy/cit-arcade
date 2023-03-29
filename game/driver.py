@@ -1,12 +1,11 @@
 import pygame
 from mapper.map import ensure_panel_config
-from leds.mux import Color, strip
+from leds.mux import Color, get_strip 
 from threading import Thread, RLock
 from webserve.webserve import do_webserve
 from game.update import Update
 import numpy as np
 import os
-from config.config import config
 
 # When set to "dummy", the PyGame window will not appear
 os.environ["SDL_VIDEODRIVER"] = "dummy"
@@ -17,7 +16,7 @@ class CitArcadeGameDriver():
         pygame.init()
         self.screen = pygame.display.set_mode((width, height), 0, 32)
 
-        self.image = pygame.image.load("game/assets/logo.png").convert_alpha()
+        self.image = pygame.image.load("game/assets/tom.jpeg").convert_alpha()
         self.image = pygame.transform.scale(self.image, (width, height))
 
         self.clock = pygame.time.Clock()
@@ -104,9 +103,17 @@ def render_to_strip(strip, rm_pixels, mapping):
 
 if __name__ == "__main__":
     panel_config = ensure_panel_config()
+    print(panel_config)
 
-    vert_pixels = panel_config.vert_panels * panel_config.vert_side_length
-    horz_pixels = panel_config.horz_panels * panel_config.horz_side_length
+    horz_side_length = panel_config.horz_side_length
+    vert_side_length = panel_config.vert_side_length
+    horz_panels = panel_config.horz_panels
+    vert_panels = panel_config.vert_panels
+
+    strip = get_strip(horz_side_length, vert_side_length, horz_panels, vert_panels)
+
+    vert_pixels = vert_panels * vert_side_length
+    horz_pixels = horz_panels * horz_side_length
 
     updates = []
     updates_lock = RLock()

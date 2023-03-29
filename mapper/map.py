@@ -18,15 +18,15 @@ def create_map(panel_width, panel_height, panels_wide, panels_high) -> dict:
     for i in range(num_panels):
         strip_root = i * num_leds
 
-        # Illuminate the first 3 pixels of this panel
-        for j in range(3):
-            strip.setPixelColor(strip_root + j, Color(255, 0, 0))
-        strip.show()
-        
         # Determine the corner and direction
         if config.get('is_dev'):
             (panel_index, corner, direction) = (i, 0, "D")
         else:
+            # Illuminate the first 3 pixels of this panel
+            for j in range(3):
+                strip.setPixelColor(strip_root + j, Color(255, 0, 0))
+            strip.show()
+
             (panel_index, corner, direction) = ask_for_orientation(num_panels)
 
         rm_root = derive_rm_root(panel_index, panel_width, panel_height, panels_wide, panels_high)
@@ -162,7 +162,8 @@ def ensure_panel_config() -> PanelConfig:
 
         mapping = create_map(horz_side_length, vert_side_length, horz_panels, vert_panels)
 
-        save_panel_config(name, PanelConfig(horz_side_length, vert_side_length, horz_panels, vert_panels, mapping))
+        loaded_panel_config = PanelConfig(horz_side_length, vert_side_length, horz_panels, vert_panels, mapping)
+        save_panel_config(name, loaded_panel_config)
 
     return loaded_panel_config 
 

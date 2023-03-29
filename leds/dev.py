@@ -12,12 +12,12 @@ def GUIColor(red, green, blue, white=0):
 
 # The prod strip follows the same format (i.e. get_prod_strip) so we use this wrapper for
 # consistency. It has no functional purpose.
-def get_dev_strip():
-    return GUIPixelStrip()
+def get_dev_strip(horz_side_length, vert_side_length, horz_panels, vert_panels):
+    return GUIPixelStrip(horz_side_length, vert_side_length, horz_panels, vert_panels)
 
 class GUIPixelStrip(object):
 
-    def __init__(self,
+    def __init__(self, horz_side_length, vert_side_length, horz_panels, vert_panels,
             pin=18, freq_hz=800000, dma=10, invert=False, brightness=255, channel=0,
             strip_type=None, gamma=None):
         """Class to represent a SK6812/WS281x LED display.  Num should be the
@@ -30,10 +30,10 @@ class GUIPixelStrip(object):
         """
         self.ready = False
 
-        self.horz_side_length = config.get('horz_side_length')
-        self.vert_side_length = config.get('vert_side_length')
-        self.horz_panels = config.get('horz_panels')
-        self.vert_panels = config.get('vert_panels')
+        self.horz_side_length = horz_side_length
+        self.vert_side_length = vert_side_length
+        self.horz_panels = horz_panels
+        self.vert_panels = vert_panels
 
         self.visualizer = Visualizer(
             self.horz_side_length,
@@ -42,6 +42,7 @@ class GUIPixelStrip(object):
             self.vert_panels)
         
         self.num_pixels = (self.horz_side_length * self.vert_side_length) * self.horz_panels * self.vert_panels
+        print(f"Starting Dev pixel strip with {self.num_pixels} num pixels")
         self.colors = np.zeros((self.num_pixels, 3))
 
     def will_not_implement(self):
