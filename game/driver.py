@@ -1,16 +1,12 @@
-# Example file showing a circle moving on screen
 import pygame
 from mapper.map import ensure_map
-from leds.strip import get_strip, get_color
+from leds.mux import Color, strip
 from threading import Thread, RLock
 from webserve.webserve import do_webserve
 from game.update import Update
 import numpy as np
 import os
-import time
 from config.config import config
-
-Color = get_color()
 
 # When set to "dummy", the PyGame window will not appear
 os.environ["SDL_VIDEODRIVER"] = "dummy"
@@ -107,7 +103,6 @@ def render_to_strip(strip, rm_pixels, mapping):
 
 
 if __name__ == "__main__":
-    strip = get_strip()
     mapping = ensure_map()
 
     updates = []

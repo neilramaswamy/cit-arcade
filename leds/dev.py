@@ -10,6 +10,11 @@ def GUIColor(red, green, blue, white=0):
     """
     return [red, green, blue]
 
+# The prod strip follows the same format (i.e. get_prod_strip) so we use this wrapper for
+# consistency. It has no functional purpose.
+def get_dev_strip():
+    return GUIPixelStrip()
+
 class GUIPixelStrip(object):
 
     def __init__(self,

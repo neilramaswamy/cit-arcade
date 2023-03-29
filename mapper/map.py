@@ -1,7 +1,7 @@
 from typing import Tuple
 import os
 import pickle
-from leds.strip import get_strip, get_color
+from leds.mux import Color, strip
 from config.config import config
 
 # Top-level directory
@@ -10,10 +10,6 @@ STORE_PATH = os.path.expanduser("~/.citarcade")
 # Interactive CLI tool to create a mapping from row-major index to strip index
 def create_map(panel_width, panel_height, panels_wide, panels_high) -> dict:
     mapping = {}
-
-    strip = get_strip()
-    strip.begin()
-    Color = get_color()
 
     num_panels = panels_wide * panels_high
     num_leds = panel_width * panel_height
