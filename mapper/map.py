@@ -3,6 +3,7 @@ import os
 import pickle
 from leds.mux import Color, strip
 from config.config import config
+from mapper.panel_config import PanelConfig
 
 # Top-level directory
 STORE_PATH = os.path.expanduser("~/.citarcade")
@@ -25,7 +26,6 @@ def create_map(panel_width, panel_height, panels_wide, panels_high) -> dict:
         # Determine the corner and direction
         if config.get('is_dev'):
             (panel_index, corner, direction) = (i, 0, "D")
-            pass
         else:
             (panel_index, corner, direction) = ask_for_orientation(num_panels)
 
@@ -125,45 +125,46 @@ def ask_for_orientation(num_panels) -> Tuple[int, int, str]:
 
     return (panel_index, corner, direction)
 
-def save_map(name: str, mapping: dict):
+def save_panel_config(name: str, panel_config: PanelConfig):
     path = os.path.join(STORE_PATH, name)
 
     if not os.path.exists(STORE_PATH):
         os.mkdir(STORE_PATH)
 
     with open(path, 'w+b') as f:
-        pickle.dump(mapping, f)
+        pickle.dump(panel_config, f)
     
     print(f"Successfully saved map to {path}")
     return
 
-def load_map(name: str) -> dict:
+def load_panel_config(name: str) -> PanelConfig:
     path = os.path.join(STORE_PATH, name)
 
     if os.path.exists(path):
-        print(f"Found existing map at {path}")
+        print(f"Found existing panel config at {path}")
 
         with open(path, 'rb') as f:
-            loaded_dict = pickle.load(f)        
-            return loaded_dict
+            loaded_panel_config = pickle.load(f)        
+            return loaded_panel_config 
     
     print(f"Did not find existing map at {path}") 
     return None
 
-def ensure_map() -> dict:
+def ensure_panel_config() -> PanelConfig:
     name = input("Name for calibration: ")
-    loaded_map = load_map(name)
+    loaded_panel_config = load_panel_config(name)
 
-    if loaded_map is None:
-        panel_width = int(input("Panel width (number of LEDs): "))
-        panel_height = int(input("Panel height (number of LEDs): "))
-        panels_wide = int(input("Number of panels across: "))
-        panels_high = int(input("Number of panels high: "))
+    if loaded_panel_config is None:
+        horz_side_length = int(input("Panel width (number of LEDs): "))
+        vert_side_length = int(input("Panel height (number of LEDs): "))
+        horz_panels = int(input("Number of panels across: "))
+        vert_panels = int(input("Number of panels high: "))
 
-        loaded_map = create_map(panel_width, panel_height, panels_wide, panels_high)
-        save_map(name, loaded_map)
+        mapping = create_map(horz_side_length, vert_side_length, horz_panels, vert_panels)
 
-    return loaded_map
+        save_panel_config(name, PanelConfig(horz_side_length, vert_side_length, horz_panels, vert_panels, mapping))
+
+    return loaded_panel_config 
 
 if __name__ == "__main__":
     # Basic test for get_map_from_orientation
@@ -197,8 +198,8 @@ if __name__ == "__main__":
     command = input("Inspect map or create new? [I/C]: ")
     if command == "I":
         name = input("Name of calibration: ")
-        loaded_map = load_map(name)
+        loaded_map = load_panel_config(name)
     elif command == "C":
-        ensure_map()
+        ensure_panel_config()
     else:
         print("Invalid command")

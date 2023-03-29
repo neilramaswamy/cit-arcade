@@ -1,5 +1,5 @@
 import pygame
-from mapper.map import ensure_map
+from mapper.map import ensure_panel_config
 from leds.mux import Color, strip
 from threading import Thread, RLock
 from webserve.webserve import do_webserve
@@ -103,18 +103,21 @@ def render_to_strip(strip, rm_pixels, mapping):
 
 
 if __name__ == "__main__":
-    mapping = ensure_map()
+    panel_config = ensure_panel_config()
+
+    vert_pixels = panel_config.vert_panels * panel_config.vert_side_length
+    horz_pixels = panel_config.horz_panels * panel_config.horz_side_length
 
     updates = []
     updates_lock = RLock()
 
     event_thread = Thread(name="webserve", target=do_webserve, args=(updates, updates_lock))
-    game = CitArcadeGameDriver(40, 36, updates, updates_lock)
+    game = CitArcadeGameDriver(vert_pixels, horz_pixels, updates, updates_lock)
 
     # Run event thread in background
     event_thread.start()
 
     while game.apply_updates():
         pixels = game.get_pixels()
-        render_to_strip(strip, pixels, mapping)
+        render_to_strip(strip, pixels, panel_config.mapping)
         game.clock.tick(30)
