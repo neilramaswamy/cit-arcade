@@ -14,7 +14,7 @@ class Visualizer:
         self.grid_tl = np.array([49, 212])
         self.grid_br = np.array([744, 914])
         self.grid_gap = 14
-        self.pixel_circle_max_fill_proportion = 0.75
+        self.pixel_circle_max_fill_proportion = 0.9
 
         # Derive values from the above
         self.sub_grid_tls, self.sub_grid_wh = getSubGrid(
@@ -42,7 +42,7 @@ class Visualizer:
 
             # Set up squares
             squares_list = [patches.Rectangle(tl, self.sub_grid_wh[0], self.sub_grid_wh[1]) for tl in self.sub_grid_tls]
-            self.squares_coll = collections.PatchCollection(squares_list, facecolors='#fff8', zorder=1)
+            self.squares_coll = collections.PatchCollection(squares_list, facecolors='#888', zorder=1)
             squares = self.ax.add_collection(self.squares_coll)
 
             # Set up circles
