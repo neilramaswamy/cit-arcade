@@ -10,7 +10,7 @@ export default function Home() {
         ApiClient.sendRequest('/nes', buttonNumber);
     }
 
-    // TODO(neil): fix this warning
+    // TODO(neil): fix this warning: rebuild
     const handleKeyPress = useCallback(
         throttle(
             (event: KeyboardEvent) => {
