@@ -4,3 +4,6 @@
 - Runs a calibration thingo
 - Once calibration is done, runs a game console
 -
+
+- `config.json`
+- `.env`

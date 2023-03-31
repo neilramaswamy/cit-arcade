@@ -1,6 +1,7 @@
-from flask import Flask, Response
+from flask import Flask, Response, request, make_response
 from threading import RLock
 from game.update import Update
+import json
 
 def do_webserve(updates: list, updates_lock: RLock):
     app = Flask(__name__) 
@@ -11,46 +12,46 @@ def do_webserve(updates: list, updates_lock: RLock):
         return r
     app.after_request(after_request)
 
-    def do_up():
-        print("Recevied UP command")
+    def do_welcome():
+        return "Welcome to webserve!"
 
-        updates_lock.acquire()
-        updates.append(Update(dy = -1))
-        updates_lock.release()
+    def do_nes():
+        response = make_response()
 
-        return "up"
-    
-    def do_down():
-        print("Recevied DOWN command")
+        try:
+            data = json.loads(request.get_data())
 
-        updates_lock.acquire()
-        updates.append(Update(dy = 1))
-        updates_lock.release()
+            if not data['button']:
+                raise AttributeError()
 
-        return "down"
+            button = data['button']
+            print(button, type(button))
 
-    def do_right():
-        print("Recevied RIGHT command")
+            if type(button) != int:
+                raise TypeError()
 
-        updates_lock.acquire()
-        updates.append(Update(dx = 1))
-        updates_lock.release()
+            updates_lock.acquire()
+            updates.append(Update(button))
+            updates_lock.release()
 
-        return "right"
-    
-    def do_left():
-        print("Recevied LEFT command")
+            response.status_code = 200
+            response.data = "Success"
+        except AttributeError:
+            response.status_code = 400
+            response.data = "No update property found"
+        except TypeError:
+            response.status_code = 400
+            response.data = "Update property of wrong type"
+        except ValueError:
+            response.status_code = 400
+            response.data = "Update property is wrong value (expected [1, 8])"
+        except:
+            response.status_code = 400
+            response.data = "Invalid request"
 
-        updates_lock.acquire()
-        updates.append(Update(dx = -1))
-        updates_lock.release()
+        return response
 
-        return "left"
-
-
-    app.add_url_rule("/up", "do_up", do_up)
-    app.add_url_rule("/down", "do_down", do_down)
-    app.add_url_rule("/right", "do_right", do_right)
-    app.add_url_rule("/left", "do_left", do_left)
+    app.add_url_rule("/", "do_welcome", do_welcome)
+    app.add_url_rule("/nes", "do_nes", do_nes, methods=["POST"])
 
     app.run(port=8160)

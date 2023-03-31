@@ -1,53 +1,52 @@
 import Head from 'next/head';
 import { ApiClient } from '@/api/api';
 import { useCallback, useEffect } from 'react';
-
-const BUTTON = {
-    UP: 1,
-    DOWN: 2,
-    LEFT: 3,
-    RIGHT: 4,
-    A: 5,
-    B: 6,
-    SELECT: 7,
-    START: 8,
-};
+import { Button } from 'types';
+import { throttle } from 'lodash';
 
 export default function Home() {
     function onButtonClick(buttonNumber: number) {
         console.log('Button clicked: ' + buttonNumber);
-        // ApiClient.sendRequest("/up");
+        ApiClient.sendRequest('/nes', buttonNumber);
     }
 
-    const handleKeyPress = useCallback((event: KeyboardEvent) => {
-        console.log(`Key pressed: ${event.key}`);
-        switch (event.key) {
-            case 'ArrowUp':
-            case 'w':
-                onButtonClick(BUTTON.UP);
-                break;
-            case 'ArrowLeft':
-            case 'a':
-                onButtonClick(BUTTON.LEFT);
-                break;
-            case 'ArrowDown':
-            case 's':
-                onButtonClick(BUTTON.DOWN);
-                break;
-            case 'ArrowRight':
-            case 'd':
-                onButtonClick(BUTTON.RIGHT);
-                break;
-            case 'Escape':
-            case 'j':
-                onButtonClick(BUTTON.A);
-                break;
-            case 'Enter':
-            case 'k':
-                onButtonClick(BUTTON.B);
-                break;
-        }
-    }, []);
+    // TODO(neil): fix this warning
+    const handleKeyPress = useCallback(
+        throttle(
+            (event: KeyboardEvent) => {
+                console.log(`Key pressed: ${event.key}`);
+                switch (event.key) {
+                    case 'ArrowUp':
+                    case 'w':
+                        onButtonClick(Button.Up);
+                        break;
+                    case 'ArrowLeft':
+                    case 'a':
+                        onButtonClick(Button.Left);
+                        break;
+                    case 'ArrowDown':
+                    case 's':
+                        onButtonClick(Button.Down);
+                        break;
+                    case 'ArrowRight':
+                    case 'd':
+                        onButtonClick(Button.Right);
+                        break;
+                    case 'Escape':
+                    case 'j':
+                        onButtonClick(Button.A);
+                        break;
+                    case 'Enter':
+                    case 'k':
+                        onButtonClick(Button.B);
+                        break;
+                }
+            },
+            100,
+            { leading: true }
+        ),
+        []
+    );
 
     useEffect(() => {
         // attach the event listener
@@ -80,24 +79,24 @@ export default function Home() {
                         <div className="flex justify-center">
                             <button
                                 className="h-16 w-16 bg-neutral-400 rounded-t-lg"
-                                onClick={() => onButtonClick(BUTTON.UP)}
+                                onClick={() => onButtonClick(Button.Up)}
                             />
                         </div>
                         <div className="flex justify-center">
                             <button
                                 className="h-16 w-16 bg-neutral-400 rounded-l-lg"
-                                onClick={() => onButtonClick(BUTTON.LEFT)}
+                                onClick={() => onButtonClick(Button.Left)}
                             />
                             <div className="h-16 w-16 bg-neutral-400" />
                             <button
                                 className="h-16 w-16 bg-neutral-400 rounded-r-lg"
-                                onClick={() => onButtonClick(BUTTON.RIGHT)}
+                                onClick={() => onButtonClick(Button.Right)}
                             />
                         </div>
                         <div className="flex justify-center">
                             <button
                                 className="h-16 w-16 bg-neutral-400 rounded-b-lg"
-                                onClick={() => onButtonClick(BUTTON.DOWN)}
+                                onClick={() => onButtonClick(Button.Down)}
                             />
                         </div>
                     </div>
@@ -107,11 +106,11 @@ export default function Home() {
                         <div className="flex justify-center space-x-4">
                             <button
                                 className="h-6 w-16 bg-neutral-400 rounded-full"
-                                onClick={() => onButtonClick(BUTTON.SELECT)}
+                                onClick={() => onButtonClick(Button.Select)}
                             />
                             <button
                                 className="h-6 w-16 bg-neutral-400 rounded-full"
-                                onClick={() => onButtonClick(BUTTON.START)}
+                                onClick={() => onButtonClick(Button.Start)}
                             />
                         </div>
                     </div>
@@ -121,11 +120,11 @@ export default function Home() {
                         <div className="flex justify-center space-x-4">
                             <button
                                 className="h-16 w-16 bg-red-600 rounded-full"
-                                onClick={() => onButtonClick(BUTTON.A)}
+                                onClick={() => onButtonClick(Button.A)}
                             />
                             <button
                                 className="h-16 w-16 bg-red-600 rounded-full"
-                                onClick={() => onButtonClick(BUTTON.B)}
+                                onClick={() => onButtonClick(Button.B)}
                             />
                         </div>
                     </div>

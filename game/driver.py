@@ -27,7 +27,7 @@ class CitArcadeGameDriver():
         self.updates_lock: RLock = updates_lock
 
         self.paused: bool = False
-        self.active_game: Optional[AbstractMiniGame] = None
+        self.active_game: Optional[AbstractMiniGame] = SnakeGame(self.screen, self.clock)
     
     def apply_updates(self):
         self.updates_lock.acquire()
@@ -38,30 +38,38 @@ class CitArcadeGameDriver():
             # Select/Start commands are always handled by the top-level game; other updates can be
             # dispatched to the underlying active game if there is one
             if update.type == UPDATE_SELECT:
-
                 if self.active_game:
                     self.paused = True
             elif update.type == UPDATE_START:
-                self.handle_start()
                 # If there is a game that is selected, play the game
-                pass
+                self.handle_start()
             elif self.active_game:
                 self.active_game.apply_update(update)
             else:
                 print(f"Discarding update {update}")
         
         self.updates_lock.release()
+
+        if self.active_game:
+            self.active_game.apply_update(None)
     
     def get_pixels(self):
         if self.active_game:
             if self.paused:
-                # Paused screen
+                # Render the paused screen
                 pass
             else:
                 return self.active_game.get_pixels()
         else:
-            # Main menu
+            # Render the main menu
             pass
+    
+    def render_main_menu(self):
+        pass
+
+    def render_paused_screen(self):
+        pass
+
 
 if __name__ == "__main__":
     panel_config = ensure_panel_config()
@@ -83,10 +91,14 @@ if __name__ == "__main__":
     event_thread = Thread(name="webserve", target=do_webserve, args=(updates, updates_lock))
     game = CitArcadeGameDriver(vert_pixels, horz_pixels, updates, updates_lock)
 
+
     # Run event thread in background
     event_thread.start()
+    print("got here?")
 
-    while game.apply_updates():
+    while True:
+        game.apply_updates()
         pixels = game.get_pixels()
+
         render_to_strip(strip, pixels, panel_config.mapping)
         game.clock.tick(30)

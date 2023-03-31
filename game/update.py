@@ -11,6 +11,8 @@ UPDATE_START = 8
 # by a game to its internal state.
 class Update():
     def __init__(self, type: int):
+        if type < UPDATE_UP or type > UPDATE_START:
+            raise ValueError("Invalid update type")
         self.type = type
 
     def __str__(self) -> str:

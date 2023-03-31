@@ -7,66 +7,121 @@ from game.update import UPDATE_UP, UPDATE_DOWN, UPDATE_LEFT, UPDATE_RIGHT
 from pygame.math import Vector2
 from random import randint
 
+# Fixme
 START_POS = (5, 5)
 
+FOOD_COLOR = (255, 0, 0)
 SNAKE_COLOR = (255, 255, 255)
 
-# A remarkably simple game where we paint a red ball to the screen on top of a purple background.
+# Milliseconds between snake movement
+TIME_STEP = 250
+
 class SnakeGame(AbstractMiniGame):
-    def __init__(self, screen, updates: list):
-        self.screen  = screen
-        self.updates = updates
+    def __init__(self, screen, clock):
+        self.screen = screen
+        self.clock  = clock
 
-        self.height = 40 # fixme
-        self.width  = 36 # fixme
-
-        self.snake_queue = deque([Vector2(START_POS)])
-
-    def get_pixels(self):
+        self.height = self.screen.get_height()
+        self.width  = self.screen.get_width()
+        
+        self.restart_game()
+        
+    def get_pixels(self) -> np.ndarray:
         self.screen.fill((0, 0, 0))
 
         # Draw food
-        pygame.draw.circle(self.screen, SNAKE_COLOR, pos, 1)
+        pygame.draw.line(self.screen, FOOD_COLOR, self.food_pos, self.food_pos, 1)
 
         # Draw snake
         for pos in self.snake_queue:
-            pygame.draw.circle(self.screen, SNAKE_COLOR, pos, 1)
+            pygame.draw.line(self.screen, SNAKE_COLOR, pos, pos, 1)
 
         arr = pygame.surfarray.array3d(self.screen)
         return np.transpose(arr, axes=(1, 0, 2))
 
     def apply_update(self, update):
-        # Find next head position
-        head_copy = self.snake_queue[0].copy
-        if   update.type == UPDATE_UP:
-            head_copy.y -= 1
-        elif update.type == UPDATE_DOWN:
-            head_copy.y += 1
-        elif update.type == UPDATE_LEFT:
-            head_copy.x -= 1
-        elif update.type == UPDATE_RIGHT:
-            head_copy.x += 1
-        else:
+        # Change next direction if an update was supplied
+        if update != None:
+            self.next_direction = update.type
+
+        # Do nothing if less than some time
+        self.time_accumulator += self.clock.get_time()
+        if self.time_accumulator < TIME_STEP:
             return
+        else:
+            self.time_accumulator -= TIME_STEP
+
+        # Fixme: consider possibility that TIME_STEP could be
+        #        much smaller than a single tick's delta-time
+
+        # Find next head position
+        next_head_position = self.get_next_head_position()
         
         # Apply next head position
-        self.snake_queue.appendleft(head_copy)
+        self.snake_queue.appendleft(next_head_position)
 
         # Detect win condition
         if len(self.snake_queue) == self.height * self.width:
-            print(f"Snake: you have won. There is nothing more I can teach you, young grasshopper.")
-            return # fixme
+            print(f"Snake: you have won.")
+            self.restart_game()
+            return
 
         # Detect lose condition
         if self.check_hit_wall() or self.check_hit_self():
             print(f"Snake: you are dead.")
-            return # fixme
+            self.restart_game()
+            return
         
         # Detect food collision
-        if head_copy == self.food_pos:
+        if next_head_position == self.food_pos:
             self.spawn_new_food()
         else: 
             self.snake_queue.pop()
+
+    def get_next_head_position(self):
+        head_copy = self.snake_queue[0].copy()
+
+        # Set curr_direction based on next_direction
+        if   self.curr_direction == UPDATE_UP:
+            if   self.next_direction == UPDATE_LEFT:
+                self.curr_direction = self.next_direction
+            elif self.next_direction == UPDATE_RIGHT:
+                self.curr_direction = self.next_direction
+            else:
+                pass
+        elif self.curr_direction == UPDATE_DOWN:
+            if   self.next_direction == UPDATE_LEFT:
+                self.curr_direction = self.next_direction
+            elif self.next_direction == UPDATE_RIGHT:
+                self.curr_direction = self.next_direction
+            else:
+                pass
+        elif self.curr_direction == UPDATE_LEFT:
+            if   self.next_direction == UPDATE_UP:
+                self.curr_direction = self.next_direction
+            elif self.next_direction == UPDATE_DOWN:
+                self.curr_direction = self.next_direction
+            else:
+                pass
+        elif self.curr_direction == UPDATE_RIGHT:
+            if   self.next_direction == UPDATE_UP:
+                self.curr_direction = self.next_direction
+            elif self.next_direction == UPDATE_DOWN:
+                self.curr_direction = self.next_direction
+            else:
+                pass
+            
+        # Get next head position
+        if   self.curr_direction == UPDATE_UP:
+            head_copy.y -= 1
+        elif self.curr_direction == UPDATE_DOWN:
+            head_copy.y += 1
+        elif self.curr_direction == UPDATE_LEFT:
+            head_copy.x -= 1
+        elif self.curr_direction == UPDATE_RIGHT:
+            head_copy.x += 1
+
+        return head_copy
 
     def check_hit_wall(self):
         head = self.snake_queue[0]
@@ -75,7 +130,9 @@ class SnakeGame(AbstractMiniGame):
     
     def check_hit_self(self):
         head = self.snake_queue[0]
-        for pos in self.snake_queue:
+        iter_snake_queue = iter(self.snake_queue)
+        next(iter_snake_queue)
+        for pos in iter_snake_queue:
             if pos == head:
                 return True
         return False
@@ -86,14 +143,27 @@ class SnakeGame(AbstractMiniGame):
 
         # Try to get a valid food position
         while invalid:
-            new_food_pos = Vector2((randint(0, self.width),
-                                    randint(0, self.height)))
+            new_food_pos = Vector2((randint(0, self.width - 1),
+                                    randint(0, self.height - 1)))
             invalid = False
             for pos in self.snake_queue:
                 if pos == new_food_pos:
                     invalid = True
             
         self.food_pos = new_food_pos
+        print(f"new_food_pos = {new_food_pos.x}, {new_food_pos.y}")
+
+    def restart_game(self):
+        self.time_accumulator = 0
+        self.snake_queue = deque([
+            Vector2(START_POS),
+            Vector2(START_POS) - Vector2((1,0)),
+            Vector2(START_POS) - Vector2((2,0))
+        ])
+        self.spawn_new_food()
+        self.curr_direction = UPDATE_RIGHT
+        self.next_direction = UPDATE_RIGHT
+        
             
         
             
