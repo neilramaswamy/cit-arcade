@@ -14,7 +14,7 @@ FOOD_COLOR = (255, 0, 0)
 SNAKE_COLOR = (255, 255, 255)
 
 # Milliseconds between snake movement
-TIME_STEP = 250
+TIME_STEP = 500
 
 class SnakeGame(AbstractMiniGame):
     def __init__(self, screen, clock):
@@ -26,7 +26,7 @@ class SnakeGame(AbstractMiniGame):
         
         self.restart_game()
         
-    def get_pixels(self) -> np.ndarray:
+    def update_screen(self):
         self.screen.fill((0, 0, 0))
 
         # Draw food
@@ -36,10 +36,7 @@ class SnakeGame(AbstractMiniGame):
         for pos in self.snake_queue:
             pygame.draw.line(self.screen, SNAKE_COLOR, pos, pos, 1)
 
-        arr = pygame.surfarray.array3d(self.screen)
-        return np.transpose(arr, axes=(1, 0, 2))
-
-    def apply_update(self, update):
+    def apply_update(self, update=None):
         # Change next direction if an update was supplied
         if update != None:
             self.next_direction = update.type
@@ -158,7 +155,10 @@ class SnakeGame(AbstractMiniGame):
         self.snake_queue = deque([
             Vector2(START_POS),
             Vector2(START_POS) - Vector2((1,0)),
-            Vector2(START_POS) - Vector2((2,0))
+            Vector2(START_POS) - Vector2((2,0)),
+            Vector2(START_POS) - Vector2((3,0)),
+            Vector2(START_POS) - Vector2((4,0)),
+            Vector2(START_POS) - Vector2((5,0))
         ])
         self.spawn_new_food()
         self.curr_direction = UPDATE_RIGHT

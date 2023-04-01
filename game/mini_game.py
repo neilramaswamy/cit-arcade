@@ -24,5 +24,5 @@ class AbstractMiniGame():
         pass
 
     @abstractmethod
-    def get_pixels(self) -> np.ndarray:
+    def update_screen(self):
         pass
