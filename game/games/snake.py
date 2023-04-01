@@ -16,6 +16,9 @@ SNAKE_COLOR = (255, 255, 255)
 # Milliseconds between snake movement
 TIME_STEP = 500
 
+# Milliseconds to buffer input
+INPUT_BUFFER_TIME = TIME_STEP * 1.5
+
 class SnakeGame(AbstractMiniGame):
     def __init__(self, screen, clock):
         self.screen = screen
@@ -37,9 +40,9 @@ class SnakeGame(AbstractMiniGame):
             pygame.draw.line(self.screen, SNAKE_COLOR, pos, pos, 1)
 
     def apply_update(self, update=None):
-        # Change next direction if an update was supplied
+        # Push update onto queue if an update was supplied
         if update != None:
-            self.next_direction = update.type
+            self.move_queue.appendleft((update.type, pygame.time.get_ticks()))
 
         # Do nothing if less than some time
         self.time_accumulator += self.clock.get_time()
@@ -48,14 +51,30 @@ class SnakeGame(AbstractMiniGame):
         else:
             self.time_accumulator -= TIME_STEP
 
-        # Fixme: consider possibility that TIME_STEP could be
-        #        much smaller than a single tick's delta-time
+        # Pop off queue to get next valid move, if any
+        next_direction = None
+        while next_direction == None and len(self.move_queue) > 0:
+            (potential_next_direction, input_time) = self.move_queue.pop()
+            if pygame.time.get_ticks() < input_time + INPUT_BUFFER_TIME:
+                next_direction = potential_next_direction
 
+        if next_direction == None:
+            next_direction = self.curr_direction
+            
+        self.move(next_direction)
+
+    def move(self, next_direction):
         # Find next head position
-        next_head_position = self.get_next_head_position()
+        next_head_pos = self.get_next_head_pos(next_direction)
         
         # Apply next head position
-        self.snake_queue.appendleft(next_head_position)
+        self.snake_queue.appendleft(next_head_pos)
+
+        # Detect food collision
+        if next_head_pos == self.food_pos:
+            self.food_pos = self.get_new_food_pos()
+        else: 
+            self.snake_queue.pop()
 
         # Detect win condition
         if len(self.snake_queue) == self.height * self.width:
@@ -68,46 +87,20 @@ class SnakeGame(AbstractMiniGame):
             print(f"Snake: you are dead.")
             self.restart_game()
             return
-        
-        # Detect food collision
-        if next_head_position == self.food_pos:
-            self.spawn_new_food()
-        else: 
-            self.snake_queue.pop()
 
-    def get_next_head_position(self):
+    def get_next_head_pos(self, next_direction):
         head_copy = self.snake_queue[0].copy()
 
-        # Set curr_direction based on next_direction
-        if   self.curr_direction == UPDATE_UP:
-            if   self.next_direction == UPDATE_LEFT:
-                self.curr_direction = self.next_direction
-            elif self.next_direction == UPDATE_RIGHT:
-                self.curr_direction = self.next_direction
-            else:
-                pass
-        elif self.curr_direction == UPDATE_DOWN:
-            if   self.next_direction == UPDATE_LEFT:
-                self.curr_direction = self.next_direction
-            elif self.next_direction == UPDATE_RIGHT:
-                self.curr_direction = self.next_direction
-            else:
-                pass
-        elif self.curr_direction == UPDATE_LEFT:
-            if   self.next_direction == UPDATE_UP:
-                self.curr_direction = self.next_direction
-            elif self.next_direction == UPDATE_DOWN:
-                self.curr_direction = self.next_direction
-            else:
-                pass
-        elif self.curr_direction == UPDATE_RIGHT:
-            if   self.next_direction == UPDATE_UP:
-                self.curr_direction = self.next_direction
-            elif self.next_direction == UPDATE_DOWN:
-                self.curr_direction = self.next_direction
-            else:
-                pass
-            
+        # Set self.curr_direction if valid next_direction is given
+        changing_direction_from_vert = \
+          (self.curr_direction == UPDATE_UP or self.curr_direction == UPDATE_DOWN) and \
+            (next_direction == UPDATE_LEFT or next_direction == UPDATE_RIGHT)
+        changing_direction_from_horz = \
+          (self.curr_direction == UPDATE_LEFT or self.curr_direction == UPDATE_RIGHT) and \
+            (next_direction == UPDATE_UP or next_direction == UPDATE_DOWN)
+        if changing_direction_from_vert or changing_direction_from_horz:
+            self.curr_direction = next_direction
+
         # Get next head position
         if   self.curr_direction == UPDATE_UP:
             head_copy.y -= 1
@@ -128,13 +121,13 @@ class SnakeGame(AbstractMiniGame):
     def check_hit_self(self):
         head = self.snake_queue[0]
         iter_snake_queue = iter(self.snake_queue)
-        next(iter_snake_queue)
+        next(iter_snake_queue) # skip head
         for pos in iter_snake_queue:
             if pos == head:
                 return True
         return False
 
-    def spawn_new_food(self):
+    def get_new_food_pos(self):
         new_food_pos = Vector2()
         invalid = True
 
@@ -146,13 +139,13 @@ class SnakeGame(AbstractMiniGame):
             for pos in self.snake_queue:
                 if pos == new_food_pos:
                     invalid = True
-            
-        self.food_pos = new_food_pos
-        print(f"new_food_pos = {new_food_pos.x}, {new_food_pos.y}")
+                    
+        return new_food_pos
 
     def restart_game(self):
         self.time_accumulator = 0
-        self.snake_queue = deque([
+        self.move_queue = deque()
+        self.snake_queue = deque([ # Fixme?
             Vector2(START_POS),
             Vector2(START_POS) - Vector2((1,0)),
             Vector2(START_POS) - Vector2((2,0)),
@@ -160,9 +153,8 @@ class SnakeGame(AbstractMiniGame):
             Vector2(START_POS) - Vector2((4,0)),
             Vector2(START_POS) - Vector2((5,0))
         ])
-        self.spawn_new_food()
+        self.food_pos = self.get_new_food_pos()
         self.curr_direction = UPDATE_RIGHT
-        self.next_direction = UPDATE_RIGHT
         
             
         
