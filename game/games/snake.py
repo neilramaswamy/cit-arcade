@@ -153,11 +153,3 @@ class SnakeGame(AbstractMiniGame):
         ])
         self.food_pos = self.get_new_food_pos()
         self.curr_direction = UPDATE_RIGHT
-        
-            
-        
-            
-
-       
-        
-
