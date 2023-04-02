@@ -89,7 +89,8 @@ class SnakeGame(AbstractMiniGame):
             return
 
     def get_next_head_pos(self, next_direction):
-        head_copy = self.snake_queue[0].copy()
+        (x, y) = self.snake_queue[0]
+        head_copy = Vector2(x, y)
 
         # Set self.curr_direction if valid next_direction is given
         changing_direction_from_vert = \
@@ -148,10 +149,7 @@ class SnakeGame(AbstractMiniGame):
         self.snake_queue = deque([ # Fixme?
             Vector2(START_POS),
             Vector2(START_POS) - Vector2((1,0)),
-            Vector2(START_POS) - Vector2((2,0)),
-            Vector2(START_POS) - Vector2((3,0)),
-            Vector2(START_POS) - Vector2((4,0)),
-            Vector2(START_POS) - Vector2((5,0))
+            Vector2(START_POS) - Vector2((2,0))
         ])
         self.food_pos = self.get_new_food_pos()
         self.curr_direction = UPDATE_RIGHT

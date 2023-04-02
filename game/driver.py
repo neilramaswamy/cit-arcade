@@ -127,7 +127,7 @@ class CitArcadeGameDriver():
         return np.transpose(arr, axes=(1, 0, 2))
     
     def render_home_menu(self):
-        self.screen.fill("black")
+        self.screen.fill((0, 0, 0))
 
         for i, option in enumerate(self.home_options):
             selected_str = "»" if i == self.option_index else ""
