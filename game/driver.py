@@ -46,7 +46,7 @@ class CitArcadeGameDriver():
         ]
 
         # Load the font up-front since that seems to take time
-        self.font = pygame.font.SysFont("arcadeclassic", 10)
+        self.font = pygame.font.SysFont("munrosmall", 10)
 
         # If the game is paused, then it indexes into self.paused_options
         # If the game is not paused, it indexes into self.home_options
@@ -128,7 +128,7 @@ class CitArcadeGameDriver():
         self.screen.fill("black")
 
         for i, option in enumerate(self.home_options):
-            selected_str = "!" if i == self.option_index else ""
+            selected_str = "»" if i == self.option_index else ""
             img = self.font.render(f"{selected_str}{option.name}", True, (255, 0, 0))
             self.screen.blit(img, (2, i * 10))
 
