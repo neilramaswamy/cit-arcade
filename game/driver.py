@@ -46,7 +46,9 @@ class CitArcadeGameDriver():
         ]
 
         # Load the font up-front since that seems to take time
-        self.font = pygame.font.SysFont("munrosmall", 10)
+        # self.font = pygame.font.SysFont("munrosmall", 10)
+        # Default font
+        self.font = pygame.font.SysFont(None, 10)
 
         # If the game is paused, then it indexes into self.paused_options
         # If the game is not paused, it indexes into self.home_options
