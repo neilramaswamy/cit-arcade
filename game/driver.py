@@ -1,5 +1,4 @@
 import os
-import time
 from threading import RLock, Thread
 from typing import Callable, List, Optional
 
@@ -7,6 +6,7 @@ import numpy as np
 import pygame
 
 from game.games.snake import SnakeGame
+from game.games.tetris import TetrisGame
 from game.mini_game import AbstractMiniGame
 from game.renderer import render_to_strip
 from game.update import UPDATE_SELECT, UPDATE_START, Update, UPDATE_UP, UPDATE_DOWN
@@ -38,7 +38,7 @@ class CitArcadeGameDriver():
 
         self.home_options: List[MenuOption] = [
             MenuOption("Snake", self._set_active_game(SnakeGame)),
-            MenuOption("Tetris", self._set_active_game(SnakeGame)),
+            MenuOption("Tetris", self._set_active_game(TetrisGame)),
         ]
         self.paused_options: List[MenuOption] = [
             MenuOption("Continue", self._return_to_game),
