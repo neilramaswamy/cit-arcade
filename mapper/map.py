@@ -51,6 +51,8 @@ def derive_rm_root(panel_index, panel_width, panel_height, panels_wide, panels_h
 # snaking pattern. The strip_root gives the first pixels in this panel's strip index, and the
 # rm_root gives the row-major index of that pixel.
 def get_map_from_orientation(strip_root, rm_root, panel_width, panel_height, panels_wide, panels_high, corner, direction) -> dict:
+    print("Getting map for strip root {strip_root}, rm root {rm_root}, panel_width {panel_width}, panel_height {panel_height}, panels_wide {panels_wide}, panels_high {panels_high}, corner {corner}, direction {direction}")
+
     assert(corner >= 0 and corner <= 3)
     # Horizontal, Vertical, Development
     assert(direction == "H" or direction == "V" or direction == "D")
@@ -87,6 +89,7 @@ def get_map_from_orientation(strip_root, rm_root, panel_width, panel_height, pan
     else:
         raise RuntimeError("Not yet implemented")
 
+    print("mapping is {mapping}")
     return mapping
 
 # Orientation gets the positioning of the first 3 LEDs of a panel. Reports back the corner and
@@ -197,11 +200,11 @@ if __name__ == "__main__":
     derive_rm_root(panel_index=1, panel_width=3, panel_height=3, panels_wide=1, panels_high=2)
     # Expected: 9
 
-    command = input("Inspect map or create new? [I/C]: ")
-    if command == "I":
-        name = input("Name of calibration: ")
-        loaded_map = load_panel_config(name)
-    elif command == "C":
-        ensure_panel_config()
-    else:
-        print("Invalid command")
+    # command = input("Inspect map or create new? [I/C]: ")
+    # if command == "I":
+    #     name = input("Name of calibration: ")
+    #     loaded_map = load_panel_config(name)
+    # elif command == "C":
+    #     ensure_panel_config()
+    # else:
+    #     print("Invalid command")
