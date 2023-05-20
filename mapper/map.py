@@ -14,15 +14,22 @@ def create_map(panel_width, panel_height, panels_wide, panels_high) -> dict:
     strip = get_strip(panel_width, panel_height, panels_wide, panels_high)
 
     num_panels = panels_wide * panels_high
-    num_leds = panel_width * panel_height
+    num_leds_per_panel = (panel_width * panel_height)
+    num_leds = num_leds_per_panel * num_panels
+
+    # Zero all the colors
+    for i in range(num_leds-1):
+        strip.setPixelColor(i, Color(0, 255, 255))
+    strip.show()
 
     for i in range(num_panels):
-        strip_root = i * num_leds
+        strip_root = i * num_leds_per_panel 
 
         # Determine the corner and direction
         if config.get('is_dev'):
             (panel_index, corner, direction) = (i, 0, "D")
         else:
+            print(f"Going to illuminate pixel starting at {strip_root}")
             # Illuminate the first 3 pixels of this panel
             for j in range(3):
                 strip.setPixelColor(strip_root + j, Color(255, 0, 0))
@@ -259,17 +266,20 @@ if __name__ == "__main__":
     grid_panel_3 = get_map_from_orientation(strip_root=36, rm_root=grid_3_rm_root, panel_width=3, panel_height=4,
                                             panels_wide=2, panels_high=2, corner=0, direction="H")
 
+    # {44: 0, 43: 1, 42: 2, 36: 3, 37: 4, 38: 5, 32: 6, 31: 7, 30: 8, 24: 9, 25: 10, 26: 11}
     print(grid_panel_0)
+    # {20: 12, 19: 13, 18: 14, 12: 15, 13: 16, 14: 17, 8: 18, 7: 19, 6: 20, 0: 21, 1: 22, 2: 23}
     print(grid_panel_1)
+    # {3: 24, 4: 25, 5: 26, 11: 27, 10: 28, 9: 29, 15: 30, 16: 31, 17: 32, 23: 33, 22: 34, 21: 35}
     print(grid_panel_2)
+    # {27: 36, 28: 37, 29: 38, 35: 39, 34: 40, 33: 41, 39: 42, 40: 43, 41: 44, 47: 45, 46: 46, 45: 47}
     print(grid_panel_3)
 
-
-    # command = input("Inspect map or create new? [I/C]: ")
-    # if command == "I":
-    #     name = input("Name of calibration: ")
-    #     loaded_map = load_panel_config(name)
-    # elif command == "C":
-    #     ensure_panel_config()
-    # else:
-    #     print("Invalid command")
+    command = input("Inspect map or create new? [I/C]: ")
+    if command == "I":
+        name = input("Name of calibration: ")
+        loaded_map = load_panel_config(name)
+    elif command == "C":
+        ensure_panel_config()
+    else:
+        print("Invalid command")
