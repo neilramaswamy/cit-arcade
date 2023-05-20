@@ -14,7 +14,7 @@ FOOD_COLOR = (255, 0, 0)
 SNAKE_COLOR = (255, 255, 255)
 
 # Milliseconds between snake movement
-TIME_STEP = 500
+TIME_STEP = 200
 
 # Milliseconds to buffer input
 INPUT_BUFFER_TIME = TIME_STEP * 1.5
