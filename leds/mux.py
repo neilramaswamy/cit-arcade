@@ -38,7 +38,7 @@ def get_strip(horz_side_length, vert_side_length, horz_panels, vert_panels):
             print("WARNING: In production, strip dimensions are fixed. Ignoring passed in dimensions.")
 
         from leds.prod import get_prod_strip
-        strip = get_prod_strip()
+        strip = get_prod_strip(horz_side_length * horz_panels, vert_side_length * vert_panels)
 
     strip.begin()
     return strip

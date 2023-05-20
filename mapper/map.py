@@ -51,8 +51,6 @@ def derive_rm_root(panel_index, panel_width, panel_height, panels_wide, panels_h
 # snaking pattern. The strip_root gives the first pixels in this panel's strip index, and the
 # rm_root gives the row-major index of that pixel.
 def get_map_from_orientation(strip_root, rm_root, panel_width, panel_height, panels_wide, panels_high, corner, direction) -> dict:
-    print("Getting map for strip root {strip_root}, rm root {rm_root}, panel_width {panel_width}, panel_height {panel_height}, panels_wide {panels_wide}, panels_high {panels_high}, corner {corner}, direction {direction}")
-
     assert(corner >= 0 and corner <= 3)
     # Horizontal, Vertical, Development
     assert(direction == "H" or direction == "V" or direction == "D")
@@ -76,6 +74,22 @@ def get_map_from_orientation(strip_root, rm_root, panel_width, panel_height, pan
 
                 strip_offset = (i * panel_width) + j
                 mapping[rm_index] = strip_root + strip_offset 
+    elif corner == 3 and direction == "H":
+        for i in range(panel_height):
+            for j in range(panel_width):
+                # When i == 0, we're at the bottom, going right to left
+                # When i % 2 == 1, we're going to left to right
+                if i % 2 == 0:
+                    # Going right to left
+                    horiz_offset = ((panel_width - 1) - j)
+                else:
+                    horiz_offset = j
+            
+                rm_vert_offset = ((panel_height - 1)  - i) * (panel_width * panels_wide)
+                rm_index = rm_root + rm_vert_offset + horiz_offset
+
+                strip_offset = (i * panel_width) + j
+                mapping[rm_index] = strip_root + strip_offset
     elif corner == 0 and direction == "D":
         for i in range(panel_height):
             for j in range(panel_width):
@@ -89,7 +103,6 @@ def get_map_from_orientation(strip_root, rm_root, panel_width, panel_height, pan
     else:
         raise RuntimeError("Not yet implemented")
 
-    print("mapping is {mapping}")
     return mapping
 
 # Orientation gets the positioning of the first 3 LEDs of a panel. Reports back the corner and
@@ -199,6 +212,58 @@ if __name__ == "__main__":
     # Expected: { 9: 9, 10: 10, 11: 11, 14: 12, 13: 13, 12: 14, 15: 15, 16: 16, 17: 17}
     derive_rm_root(panel_index=1, panel_width=3, panel_height=3, panels_wide=1, panels_high=2)
     # Expected: 9
+
+    # ================================
+    # Bottom-right horizontal snaking
+    # Two panels stacked vertically
+    # ================================
+    derive_rm_root(panel_index=0, panel_width=3, panel_height=4, panels_wide=1, panels_high=2)
+
+    # {9: 12, 10: 13, 11: 14, 8: 15, 7: 16, 6: 17, 3: 18, 4: 19, 5: 20, 2: 21, 1: 22, 0: 23}
+    br_h_first_panel = get_map_from_orientation(strip_root=12, rm_root=0, panel_width=3, panel_height=4,
+                                            panels_wide=1, panels_high=2, corner=3, direction="H")
+    # {21: 0, 22: 1, 23: 2, 20: 3, 19: 4, 18: 5, 15: 6, 16: 7, 17: 8, 14: 9, 13: 10, 12: 11}
+    br_h_second_panel = get_map_from_orientation(strip_root=0, rm_root=12, panel_width=3, panel_height=4,
+                                            panels_wide=1, panels_high=2, corner=3, direction="H")
+
+    # ==================================
+    # Bottom-right horizontal snaking
+    # Two panels side-by-side: bottom 
+    #
+    # In this diagram, S means start, and E means end.
+    # The numbers in the grid are how the panels are
+    # wired together.
+    #
+    #  ______ ______
+    # |    ->|->    |
+    # |  1   |    2 |
+    # |____<-|<-____|
+    # |    ->|->    |
+    # |  0   |    3 |
+    # |____<-|<-____|
+    #
+    #
+    # ==================================
+    
+    grid_0_rm_root = derive_rm_root(panel_index=2, panel_width=3, panel_height=4, panels_wide=2, panels_high=2)
+    grid_1_rm_root = derive_rm_root(panel_index=0, panel_width=3, panel_height=4, panels_wide=2, panels_high=2)
+    grid_2_rm_root = derive_rm_root(panel_index=1, panel_width=3, panel_height=4, panels_wide=2, panels_high=2)
+    grid_3_rm_root = derive_rm_root(panel_index=3, panel_width=3, panel_height=4, panels_wide=2, panels_high=2)
+
+    grid_panel_0 = get_map_from_orientation(strip_root=0, rm_root=grid_0_rm_root, panel_width=3, panel_height=4, 
+                                            panels_wide=2, panels_high=2, corner=3, direction="H")
+    grid_panel_1 = get_map_from_orientation(strip_root=12, rm_root=grid_1_rm_root, panel_width=3, panel_height=4,
+                                            panels_wide=2, panels_high=2, corner=3, direction="H")
+    grid_panel_2 = get_map_from_orientation(strip_root=24, rm_root=grid_2_rm_root, panel_width=3, panel_height=4,
+                                            panels_wide=2, panels_high=2, corner=0, direction="H")
+    grid_panel_3 = get_map_from_orientation(strip_root=36, rm_root=grid_3_rm_root, panel_width=3, panel_height=4,
+                                            panels_wide=2, panels_high=2, corner=0, direction="H")
+
+    print(grid_panel_0)
+    print(grid_panel_1)
+    print(grid_panel_2)
+    print(grid_panel_3)
+
 
     # command = input("Inspect map or create new? [I/C]: ")
     # if command == "I":
