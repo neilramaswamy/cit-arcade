@@ -257,23 +257,18 @@ if __name__ == "__main__":
     grid_2_rm_root = derive_rm_root(panel_index=1, panel_width=3, panel_height=4, panels_wide=2, panels_high=2)
     grid_3_rm_root = derive_rm_root(panel_index=3, panel_width=3, panel_height=4, panels_wide=2, panels_high=2)
 
+    # {44: 0, 43: 1, 42: 2, 36: 3, 37: 4, 38: 5, 32: 6, 31: 7, 30: 8, 24: 9, 25: 10, 26: 11}
     grid_panel_0 = get_map_from_orientation(strip_root=0, rm_root=grid_0_rm_root, panel_width=3, panel_height=4, 
                                             panels_wide=2, panels_high=2, corner=3, direction="H")
+    # {20: 12, 19: 13, 18: 14, 12: 15, 13: 16, 14: 17, 8: 18, 7: 19, 6: 20, 0: 21, 1: 22, 2: 23}
     grid_panel_1 = get_map_from_orientation(strip_root=12, rm_root=grid_1_rm_root, panel_width=3, panel_height=4,
                                             panels_wide=2, panels_high=2, corner=3, direction="H")
+    # {3: 24, 4: 25, 5: 26, 11: 27, 10: 28, 9: 29, 15: 30, 16: 31, 17: 32, 23: 33, 22: 34, 21: 35}
     grid_panel_2 = get_map_from_orientation(strip_root=24, rm_root=grid_2_rm_root, panel_width=3, panel_height=4,
                                             panels_wide=2, panels_high=2, corner=0, direction="H")
+    # {27: 36, 28: 37, 29: 38, 35: 39, 34: 40, 33: 41, 39: 42, 40: 43, 41: 44, 47: 45, 46: 46, 45: 47}
     grid_panel_3 = get_map_from_orientation(strip_root=36, rm_root=grid_3_rm_root, panel_width=3, panel_height=4,
                                             panels_wide=2, panels_high=2, corner=0, direction="H")
-
-    # {44: 0, 43: 1, 42: 2, 36: 3, 37: 4, 38: 5, 32: 6, 31: 7, 30: 8, 24: 9, 25: 10, 26: 11}
-    print(grid_panel_0)
-    # {20: 12, 19: 13, 18: 14, 12: 15, 13: 16, 14: 17, 8: 18, 7: 19, 6: 20, 0: 21, 1: 22, 2: 23}
-    print(grid_panel_1)
-    # {3: 24, 4: 25, 5: 26, 11: 27, 10: 28, 9: 29, 15: 30, 16: 31, 17: 32, 23: 33, 22: 34, 21: 35}
-    print(grid_panel_2)
-    # {27: 36, 28: 37, 29: 38, 35: 39, 34: 40, 33: 41, 39: 42, 40: 43, 41: 44, 47: 45, 46: 46, 45: 47}
-    print(grid_panel_3)
 
     command = input("Inspect map or create new? [I/C]: ")
     if command == "I":
