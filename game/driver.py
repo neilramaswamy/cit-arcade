@@ -7,6 +7,7 @@ import pygame
 
 from game.games.snake import SnakeGame
 from game.games.tetris import TetrisGame
+from game.games.light_cycle import LightCycleGame
 from game.mini_game import AbstractMiniGame
 from game.renderer import render_to_strip
 from game.update import UPDATE_SELECT, UPDATE_START, Update, UPDATE_UP, UPDATE_DOWN
@@ -39,6 +40,7 @@ class CitArcadeGameDriver():
         self.home_options: List[MenuOption] = [
             MenuOption("Snake", self._set_active_game(SnakeGame)),
             MenuOption("Tetris", self._set_active_game(TetrisGame)),
+            MenuOption("Light Cycle", self._set_active_game(LightCycleGame)),
         ]
         self.paused_options: List[MenuOption] = [
             MenuOption("Continue", self._return_to_game),
