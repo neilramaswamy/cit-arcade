@@ -3,22 +3,12 @@ import {
     PostAdminGetPasswordsResponse,
     PostAdminRotatePasswordsResponse,
 } from '@/types';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 export default function Admin() {
-    const [isAuthed, setIsAuthed] = useState<boolean>(true);
     const [passwords, setPasswords] = useState<string[]>([]);
 
-    const handleUnauthed = (): void => {
-        const authToken = prompt(
-            'Admin authentication invalid. You might consider providing a correct password: '
-        );
-        localStorage['authToken'] = authToken;
-    };
-
     useEffect(() => {
-        console.log('called twice?');
-
         (async () => {
             const response = await ApiClient.sendRequest(
                 'POST',
@@ -28,16 +18,37 @@ export default function Admin() {
             if (response) {
             }
 
-            if (response.status === 401) {
-                handleUnauthed();
-            } else {
-                setIsAuthed(true);
-
+            if (response.status === 200) {
                 const json =
                     (await response.json()) as PostAdminGetPasswordsResponse;
                 setPasswords(json.authTokens);
             }
         })();
+    }, []);
+
+    const doRotatePasswords = useCallback(async () => {
+        const response = await ApiClient.sendRequest(
+            'POST',
+            '/admin/rotate',
+            {}
+        );
+
+        if (response.status === 401) {
+            const authToken = prompt(
+                'Admin authentication invalid. You might consider providing a correct password: '
+            );
+
+            if (authToken === null) {
+                return;
+            }
+
+            localStorage['authToken'] = authToken;
+            doRotatePasswords();
+        } else if (response.status === 200) {
+            const json =
+                (await response.json()) as PostAdminRotatePasswordsResponse;
+            setPasswords(json.authTokens);
+        }
     }, []);
 
     return (
@@ -62,21 +73,7 @@ export default function Admin() {
 
             <button
                 className="p-6 bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 border-blue-700 hover:border-blue-500 rounded"
-                onClick={async () => {
-                    const response = await ApiClient.sendRequest(
-                        'POST',
-                        '/admin/rotate',
-                        {}
-                    );
-
-                    if (response.status === 401) {
-                        handleUnauthed();
-                    } else if (response.status === 200) {
-                        const json =
-                            (await response.json()) as PostAdminRotatePasswordsResponse;
-                        setPasswords(json.authTokens);
-                    }
-                }}
+                onClick={doRotatePasswords}
             >
                 Refresh Passwords
             </button>
