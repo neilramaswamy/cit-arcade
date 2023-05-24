@@ -90,7 +90,7 @@ class CitArcadeGameDriver():
             elif is_pause_screen:
                 self._handle_menu_move(update, self.paused_options)
             elif is_game_screen:
-                if update.type == UPDATE_SELECT:
+                if update.button == UPDATE_SELECT:
                     self.paused = True
                 else:
                     self.active_game.apply_update(update)
@@ -103,13 +103,13 @@ class CitArcadeGameDriver():
             self.active_game.apply_update(None)
 
     def _handle_menu_move(self, update: Update, options: List[MenuOption]) -> bool:
-        if update.type == UPDATE_UP:
+        if update.button == UPDATE_UP:
             self.option_index = max(self.option_index - 1, 0)
             return True
-        elif update.type == UPDATE_DOWN:
+        elif update.button == UPDATE_DOWN:
             self.option_index = min(self.option_index + 1, len(options) - 1)
             return True
-        elif update.type == UPDATE_START:
+        elif update.button == UPDATE_START:
             options[self.option_index].click()
             return True
         return False

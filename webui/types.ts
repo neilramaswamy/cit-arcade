@@ -1,4 +1,4 @@
-export enum Button {
+export enum ControlButton {
     Up = 1,
     Down,
     Left,
@@ -7,4 +7,33 @@ export enum Button {
     B,
     Select,
     Start,
+}
+
+interface AuthedRequest {
+    authToken: string;
+}
+
+export interface PostUserPasswordRequest extends AuthedRequest {}
+export interface PostUserPasswordResponse {
+    playerIndex: number;
+}
+
+export interface PostUserSendControlRequest extends AuthedRequest {
+    button: ControlButton;
+}
+
+export interface PostUserSendControlResponse {}
+
+// -----------------
+// ADMIN ROUTES
+// -----------------
+export interface PostAdminGetPasswordsRequest extends AuthedRequest {}
+
+export interface PostAdminGetPasswordsResponse {
+    authTokens: [];
+}
+
+export interface PostAdminRotatePasswordsRequest extends AuthedRequest {}
+export interface PostAdminRotatePasswordsResponse {
+    authTokens: [];
 }

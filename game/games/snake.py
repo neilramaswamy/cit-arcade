@@ -42,7 +42,7 @@ class SnakeGame(AbstractMiniGame):
     def apply_update(self, update=None):
         # Push update onto queue if an update was supplied
         if update != None:
-            self.move_queue.appendleft((update.type, pygame.time.get_ticks()))
+            self.move_queue.appendleft((update.button, pygame.time.get_ticks()))
 
         # Do nothing if less than some time
         self.time_accumulator += self.clock.get_time()

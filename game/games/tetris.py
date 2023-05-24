@@ -42,7 +42,7 @@ class TetrisGame(AbstractMiniGame):
     def apply_update(self, update=None):
         # If an update is provided, try to move
         if update != None:
-            self.piece_move(update.type)
+            self.piece_move(update.button)
 
         # Do not auto-fall if less than some time
         self.time_accumulator += self.clock.get_time()

@@ -1,26 +1,28 @@
 import join from 'url-join';
-import { Button } from 'types';
+import { ControlButton } from 'types';
 
 const getAPIClient = () => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
     console.log(`API URL is ${apiUrl}`);
 
-    const sendRequest = async (path: string, buttonNumber: Button) => {
+    const sendRequest = async (
+        method: string,
+        path: string,
+        payload: Object,
+        authToken: string = localStorage.getItem('authToken') ?? ''
+    ) => {
         const destination = join(apiUrl, path);
 
-        console.log(`Joined path is ${destination}`);
-
         const requestOptions = {
-            method: 'POST',
-            body: JSON.stringify({ button: buttonNumber }),
+            method,
+            body: JSON.stringify({
+                ...payload,
+                authToken,
+            }),
         };
 
-        try {
-            const response = await fetch(destination, requestOptions);
-            return response;
-        } catch (e) {
-            console.error(`Error making fetch to ${destination}: ${e}`);
-        }
+        const response = await fetch(destination, requestOptions);
+        return response;
     };
 
     return {
