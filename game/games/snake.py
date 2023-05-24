@@ -17,7 +17,7 @@ SNAKE_COLOR = (255, 255, 255)
 TIME_STEP = 200
 
 # Milliseconds to buffer input
-INPUT_BUFFER_TIME = TIME_STEP * 1.5
+INPUT_BUFFER_TIME = TIME_STEP * 2
 
 class SnakeGame(AbstractMiniGame):
     def __init__(self, screen, clock):
