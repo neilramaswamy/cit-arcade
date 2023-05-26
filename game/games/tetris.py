@@ -4,7 +4,7 @@ import numpy as np
 from collections import deque
 from game.games.tetris_pieces import NUM_SHAPES, SHAPE_COLORS, TetrisPiece
 from game.mini_game import AbstractMiniGame 
-from game.update import UPDATE_UP, UPDATE_DOWN, UPDATE_LEFT, UPDATE_RIGHT
+from game.update import UPDATE_UP, UPDATE_DOWN, UPDATE_LEFT, UPDATE_RIGHT, UPDATE_SELECT
 from pygame.math import Vector2
 from random import randint
 
@@ -88,6 +88,11 @@ class TetrisGame(AbstractMiniGame):
             self.piece.x += 1
             if not self.piece_in_valid_space():
                 self.piece.x -= 1
+        elif direction == UPDATE_SELECT:
+            while self.piece_in_valid_space():
+                self.piece.y += 1
+
+            self.piece.y -= 1
         else:
             print("Tetris: invalid direction.")
             

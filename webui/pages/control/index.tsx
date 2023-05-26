@@ -70,6 +70,7 @@ export default function Control() {
                     case 'd':
                         onButtonClick(ControlButton.Right);
                         break;
+                    case ' ':
                     case 'Enter':
                         onButtonClick(ControlButton.Select);
                         break;
