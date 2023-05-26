@@ -50,7 +50,7 @@ class CitArcadeGameDriver():
             MenuOption("Conway", self._set_active_game(ConwaysGameOfLife))
         ]
         self.paused_options: List[MenuOption] = [
-            MenuOption("Continue", self._return_to_game),
+            MenuOption("Resume", self._return_to_game),
             MenuOption("Exit", self._return_to_home)
         ]
 
@@ -69,10 +69,16 @@ class CitArcadeGameDriver():
     
     def _return_to_game(self):
         self.paused = False
+        self.option_index = 0
 
     def _return_to_home(self):
         self.paused = False
-        self.active_game = False
+        self.active_game = None
+        self.option_index = 0
+    
+    def _go_to_paused(self):
+        self.paused = True
+        self.option_index = 0
     
     def apply_updates(self):
         self.updates_lock.acquire()
@@ -92,13 +98,12 @@ class CitArcadeGameDriver():
             is_home_screen = self.active_game == None
 
             if is_home_screen:
-
                 self._handle_menu_move(update, self.home_options)
             elif is_pause_screen:
                 self._handle_menu_move(update, self.paused_options)
             elif is_game_screen:
                 if update.button == UPDATE_PAUSE:
-                    self.paused = True
+                    self._go_to_paused()
                 else:
                     self.active_game.apply_update(update)
             else:
@@ -140,7 +145,7 @@ class CitArcadeGameDriver():
         # We only render MAX_HOME_MENU_OPTIONS at a time, so we have to figure out what window
         # of elements to show. We start the four items in front of the current position,
         # self.option_index, unless we're near the end.
-        start_menu_index = min(self.option_index, len(self.home_options) - MAX_HOME_MENU_OPTIONS)
+        start_menu_index = max(0, self.option_index - (MAX_HOME_MENU_OPTIONS - 1))
         curr_home_options = self.home_options[start_menu_index:start_menu_index+MAX_HOME_MENU_OPTIONS]
 
         for i, option in enumerate(curr_home_options):
@@ -148,10 +153,15 @@ class CitArcadeGameDriver():
 
             selected_str = "»" if option_index == self.option_index else " "
             img = self.font.render(f"{selected_str}{option.name}", False, (255, 0, 0))
-            self.screen.blit(img, (2, i * 10 - 2))
+            self.screen.blit(img, (0, i * 10 - 2))
 
     def render_paused_screen(self):
-        pass
+        self.screen.fill((0, 0, 0))
+
+        for i, option in enumerate(self.paused_options):
+            selected_str = "»" if i == self.option_index else " "
+            img = self.font.render(f"{selected_str}{option.name}", False, (255, 0, 0))
+            self.screen.blit(img, (0, i * 10 - 2))
 
 
 if __name__ == "__main__":
