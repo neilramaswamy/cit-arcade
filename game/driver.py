@@ -8,6 +8,7 @@ import pygame
 from game.games.snake import SnakeGame
 from game.games.tetris import TetrisGame
 from game.games.light_cycle import LightCycleGame
+from game.games.face import FaceGame
 from game.games.conway import ConwaysGameOfLife
 from game.mini_game import AbstractMiniGame
 from game.games.grad import GradGame
@@ -43,6 +44,7 @@ class CitArcadeGameDriver():
         self.active_game: Optional[AbstractMiniGame] = None
 
         self.home_options: List[MenuOption] = [
+            MenuOption("Face", self._set_active_game(FaceGame)),
             MenuOption("Snake", self._set_active_game(SnakeGame)),
             MenuOption("Tetris", self._set_active_game(TetrisGame)),
             MenuOption("Grad", self._set_active_game(GradGame)),
@@ -119,7 +121,6 @@ class CitArcadeGameDriver():
             self.option_index = max(self.option_index - 1, 0)
             return True
         elif update.button == UPDATE_DOWN:
-            print(f"got upate down, min between {self.option_index + 1} and {len(options) - 1}")
             self.option_index = min(self.option_index + 1, len(options) - 1)
             return True
         elif update.button == UPDATE_SELECT:
