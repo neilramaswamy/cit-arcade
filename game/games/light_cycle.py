@@ -2,8 +2,8 @@ import pygame
 import numpy as np
 
 from collections import deque
-from mini_game import AbstractMiniGame 
-from update import UPDATE_UP, UPDATE_DOWN, UPDATE_LEFT, UPDATE_RIGHT
+from game.mini_game import AbstractMiniGame 
+from game.update import UPDATE_UP, UPDATE_DOWN, UPDATE_LEFT, UPDATE_RIGHT
 from pygame.math import Vector2
 
 PLAYER_INDICES = [1, 2]
@@ -11,8 +11,8 @@ PLAYER_INDICES = [1, 2]
 # Fixme
 PLAYER_START_POSITIONS = [
     None,
-    (5,  5), # player 1
-    (10, 5), # player 2
+    (0,  0), # player 1
+    (20, 20), # player 2
 ]
 PLAYER_COLORS = [
     None,
@@ -48,19 +48,21 @@ class LightCycleGame(AbstractMiniGame):
         # Push update onto queue if an update was supplied
         if update != None:
             current_time = pygame.time.get_ticks()
-            self.player_queues[update.player_index].appendleft((update.type, current_time))
+            self.player_queues[update.player_index].appendleft((update.button, current_time))
 
         # Move based on fixed time steps
         self.time_accumulator += self.clock.get_time()
-        while self.time_accumulator >= TIME_STEP:
-            for player_index in PLAYER_INDICES:
-                # Ignore dead players
-                if self.player_queues[player_index] == None:
-                    continue
-                self.move_player(player_index)
+
+        # TODO(zack): Figure out this time accumulator stuff
+        # while self.time_accumulator >= TIME_STEP:
+        for player_index in PLAYER_INDICES:
+            # Ignore dead players
+            if self.player_queues[player_index] == None:
+                continue
+            self.move_player(player_index)
 
         # Detect win condition
-        if sum(x is None for x in self.player_queues) == 1:
+        if sum(x is not None for x in self.player_queues) == 1:
             print(f"LightCycle: someone has won.")
             self.restart_game()
             return
@@ -86,33 +88,37 @@ class LightCycleGame(AbstractMiniGame):
         self.player_queues[player_index].appendleft(next_head_pos)
 
         # Detect death condition
-        if self.check_hit_wall(player_index) or self.check_hit_anyone(player_index):
+        did_hit_wall = self.check_hit_wall(player_index)
+        did_hit_someone = self.check_hit_anyone(player_index)
+
+        if did_hit_wall or did_hit_someone:
             print(f"Light Cycle: player {player_index} is dead.")
             self.kill_player(player_index)
             return
 
     def get_next_head_pos(self, player_index, next_direction):
         (x, y) = self.player_queues[player_index][0]
+        curr_direction = self.curr_directions[player_index]
         head_copy = Vector2(x, y)
 
-        # Set self.curr_direction if valid next_direction is given
+        # Set curr_direction if valid next_direction is given
         changing_direction_from_vert = \
-          (self.curr_direction == UPDATE_UP or self.curr_direction == UPDATE_DOWN) and \
+          (curr_direction == UPDATE_UP or curr_direction == UPDATE_DOWN) and \
             (next_direction == UPDATE_LEFT or next_direction == UPDATE_RIGHT)
         changing_direction_from_horz = \
-          (self.curr_direction == UPDATE_LEFT or self.curr_direction == UPDATE_RIGHT) and \
+          (curr_direction == UPDATE_LEFT or curr_direction == UPDATE_RIGHT) and \
             (next_direction == UPDATE_UP or next_direction == UPDATE_DOWN)
         if changing_direction_from_vert or changing_direction_from_horz:
-            self.curr_direction = next_direction
+            self.curr_directions[player_index] = next_direction
 
         # Get next head position
-        if   self.curr_direction == UPDATE_UP:
+        if curr_direction == UPDATE_UP:
             head_copy.y -= 1
-        elif self.curr_direction == UPDATE_DOWN:
+        elif curr_direction == UPDATE_DOWN:
             head_copy.y += 1
-        elif self.curr_direction == UPDATE_LEFT:
+        elif curr_direction == UPDATE_LEFT:
             head_copy.x -= 1
-        elif self.curr_direction == UPDATE_RIGHT:
+        elif curr_direction == UPDATE_RIGHT:
             head_copy.x += 1
 
         return head_copy
@@ -144,16 +150,17 @@ class LightCycleGame(AbstractMiniGame):
         self.player_queues[player_index] = None
 
     def restart_game(self):
+        print("restarting running")
         self.time_accumulator = 0
         self.move_queues = [
             None,
             deque(), # player 1
             deque(), # player 2
         ]
-        self.player_queues = [
+        self.player_queues: list[deque] = [
             None,
-            deque([Vector2(PLAYER_START_POSITIONS[0])]), # player 1
-            deque([Vector2(PLAYER_START_POSITIONS[1])]), # player 2
+            deque([Vector2(PLAYER_START_POSITIONS[1][0], PLAYER_START_POSITIONS[1][1])]), # player 1
+            deque([Vector2(PLAYER_START_POSITIONS[2][0], PLAYER_START_POSITIONS[2][1])]), # player 2
         ]
         self.curr_directions = [
             None,
