@@ -6,6 +6,8 @@ from game.update import Update
 
 from game.mini_game import AbstractMiniGame
 
+# This code isn't mine:
+# https://beltoforion.de/en/recreational_mathematics/game_of_life.php
 class ConwaysGameOfLife(AbstractMiniGame):
     col_about_to_die = (200, 200, 225)
     col_alive = (255, 255, 215)
