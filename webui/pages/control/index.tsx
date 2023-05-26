@@ -70,13 +70,8 @@ export default function Control() {
                     case 'd':
                         onButtonClick(ControlButton.Right);
                         break;
-                    case 'Escape':
-                    case 'j':
-                        onButtonClick(ControlButton.A);
-                        break;
                     case 'Enter':
-                    case 'k':
-                        onButtonClick(ControlButton.B);
+                        onButtonClick(ControlButton.Select);
                         break;
                 }
             },
@@ -110,12 +105,8 @@ export default function Control() {
 
             <div
                 ref={refPassthrough}
-                className="h-full flex flex-col bg-gray-800 items-center"
+                className="h-full flex flex-col bg-gray-800 items-center justify-center"
             >
-                <h1 className="text-4xl mb-4 font-extrabold text-white sm:text-5xl">
-                    The CIT Arcade
-                </h1>
-
                 <div className="flex justify-between items-end max-w-2xl p-8 bg-gray-100 mx-auto rounded-lg mb-3">
                     {/*D Pad*/}
                     <div>
@@ -156,15 +147,11 @@ export default function Control() {
                             <button
                                 className="h-6 w-16 bg-neutral-400 rounded-full"
                                 onClick={() =>
-                                    onButtonClick(ControlButton.Select)
+                                    onButtonClick(ControlButton.Pause)
                                 }
-                            />
-                            <button
-                                className="h-6 w-16 bg-neutral-400 rounded-full"
-                                onClick={() =>
-                                    onButtonClick(ControlButton.Start)
-                                }
-                            />
+                            >
+                                Pause
+                            </button>
                         </div>
                     </div>
 
@@ -173,12 +160,12 @@ export default function Control() {
                         <div className="flex justify-center space-x-4">
                             <button
                                 className="h-16 w-16 bg-red-600 rounded-full"
-                                onClick={() => onButtonClick(ControlButton.A)}
-                            />
-                            <button
-                                className="h-16 w-16 bg-red-600 rounded-full"
-                                onClick={() => onButtonClick(ControlButton.B)}
-                            />
+                                onClick={() =>
+                                    onButtonClick(ControlButton.Select)
+                                }
+                            >
+                                A
+                            </button>
                         </div>
                     </div>
                 </div>

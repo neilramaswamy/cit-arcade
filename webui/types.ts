@@ -3,10 +3,9 @@ export enum ControlButton {
     Down,
     Left,
     Right,
-    A,
-    B,
-    Select,
-    Start,
+
+    Pause,
+    Select
 }
 
 interface AuthedRequest {

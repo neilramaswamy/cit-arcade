@@ -76,7 +76,6 @@ def do_webserve(updates: list, updates_lock: RLock):
 
         # Validate that they're authenticated
         auth_token = data['authToken']
-        print("token is " + auth_token)
 
         player_index = get_player_from_pw(auth_token)
         if player_index < 0:

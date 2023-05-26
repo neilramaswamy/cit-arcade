@@ -8,9 +8,11 @@ import pygame
 from game.games.snake import SnakeGame
 from game.games.tetris import TetrisGame
 from game.games.light_cycle import LightCycleGame
+from game.games.conway import ConwaysGameOfLife
 from game.mini_game import AbstractMiniGame
+from game.games.grad import GradGame
 from game.renderer import render_to_strip
-from game.update import UPDATE_SELECT, UPDATE_START, Update, UPDATE_UP, UPDATE_DOWN
+from game.update import UPDATE_PAUSE, UPDATE_SELECT, Update, UPDATE_UP, UPDATE_DOWN
 from leds.mux import get_strip
 from mapper.map import ensure_panel_config
 from webserve.webserve import do_webserve
@@ -18,11 +20,14 @@ from webserve.webserve import do_webserve
 # When set to "dummy", the PyGame window will not appear
 os.environ["SDL_VIDEODRIVER"] = "dummy"
 
+# TODO: Ideally we should generate this based on the size of the screen
+# Do you really think I have time for this?
+MAX_HOME_MENU_OPTIONS = 4
+
 class MenuOption():
     def __init__(self, name: str, on_click: Callable[[None], None]):
         self.name = name
         self.click = on_click 
-
 
 class CitArcadeGameDriver():
     def __init__(self, height: int, width: int, updates: list, updates_lock: RLock):
@@ -40,7 +45,9 @@ class CitArcadeGameDriver():
         self.home_options: List[MenuOption] = [
             MenuOption("Snake", self._set_active_game(SnakeGame)),
             MenuOption("Tetris", self._set_active_game(TetrisGame)),
-            MenuOption("Light Cycle", self._set_active_game(LightCycleGame)),
+            MenuOption("Grad", self._set_active_game(GradGame)),
+            MenuOption("Tron", self._set_active_game(LightCycleGame)),
+            MenuOption("Conway", self._set_active_game(ConwaysGameOfLife))
         ]
         self.paused_options: List[MenuOption] = [
             MenuOption("Continue", self._return_to_game),
@@ -48,9 +55,7 @@ class CitArcadeGameDriver():
         ]
 
         # Load the font up-front since that seems to take time
-        # self.font = pygame.font.SysFont("munrosmall", 10)
-        # Default font
-        self.font = pygame.font.SysFont(None, 10)
+        self.font = pygame.font.SysFont("munrosmall", 10)
 
         # If the game is paused, then it indexes into self.paused_options
         # If the game is not paused, it indexes into self.home_options
@@ -92,7 +97,7 @@ class CitArcadeGameDriver():
             elif is_pause_screen:
                 self._handle_menu_move(update, self.paused_options)
             elif is_game_screen:
-                if update.button == UPDATE_SELECT:
+                if update.button == UPDATE_PAUSE:
                     self.paused = True
                 else:
                     self.active_game.apply_update(update)
@@ -109,9 +114,10 @@ class CitArcadeGameDriver():
             self.option_index = max(self.option_index - 1, 0)
             return True
         elif update.button == UPDATE_DOWN:
+            print(f"got upate down, min between {self.option_index + 1} and {len(options) - 1}")
             self.option_index = min(self.option_index + 1, len(options) - 1)
             return True
-        elif update.button == UPDATE_START:
+        elif update.button == UPDATE_SELECT:
             options[self.option_index].click()
             return True
         return False
@@ -131,10 +137,18 @@ class CitArcadeGameDriver():
     def render_home_menu(self):
         self.screen.fill((0, 0, 0))
 
-        for i, option in enumerate(self.home_options):
-            selected_str = "»" if i == self.option_index else ""
-            img = self.font.render(f"{selected_str}{option.name}", True, (255, 0, 0))
-            self.screen.blit(img, (2, i * 10))
+        # We only render MAX_HOME_MENU_OPTIONS at a time, so we have to figure out what window
+        # of elements to show. We start the four items in front of the current position,
+        # self.option_index, unless we're near the end.
+        start_menu_index = min(self.option_index, len(self.home_options) - MAX_HOME_MENU_OPTIONS)
+        curr_home_options = self.home_options[start_menu_index:start_menu_index+MAX_HOME_MENU_OPTIONS]
+
+        for i, option in enumerate(curr_home_options):
+            option_index = i + start_menu_index
+
+            selected_str = "»" if option_index == self.option_index else " "
+            img = self.font.render(f"{selected_str}{option.name}", False, (255, 0, 0))
+            self.screen.blit(img, (2, i * 10 - 2))
 
     def render_paused_screen(self):
         pass
