@@ -113,12 +113,14 @@ export default function Control() {
                     <div>
                         <div className="flex justify-center">
                             <button
+                                type="button"
                                 className="h-16 w-16 bg-neutral-400 rounded-t-lg"
                                 onClick={() => onButtonClick(ControlButton.Up)}
                             />
                         </div>
                         <div className="flex justify-center">
                             <button
+                                type="button"
                                 className="h-16 w-16 bg-neutral-400 rounded-l-lg"
                                 onClick={() =>
                                     onButtonClick(ControlButton.Left)
@@ -126,6 +128,7 @@ export default function Control() {
                             />
                             <div className="h-16 w-16 bg-neutral-400" />
                             <button
+                                type="button"
                                 className="h-16 w-16 bg-neutral-400 rounded-r-lg"
                                 onClick={() =>
                                     onButtonClick(ControlButton.Right)
@@ -134,6 +137,7 @@ export default function Control() {
                         </div>
                         <div className="flex justify-center">
                             <button
+                                type="button"
                                 className="h-16 w-16 bg-neutral-400 rounded-b-lg"
                                 onClick={() =>
                                     onButtonClick(ControlButton.Down)
@@ -146,10 +150,12 @@ export default function Control() {
                     <div className="ml-10 mr-10">
                         <div className="flex justify-center space-x-4">
                             <button
+                                type="button"
+                                tabIndex={-1}
                                 className="h-6 w-16 bg-neutral-400 rounded-full"
-                                onClick={() =>
-                                    onButtonClick(ControlButton.Pause)
-                                }
+                                onClick={() => {
+                                    onButtonClick(ControlButton.Pause);
+                                }}
                             >
                                 Pause
                             </button>
@@ -160,6 +166,7 @@ export default function Control() {
                     <div>
                         <div className="flex justify-center space-x-4">
                             <button
+                                type="button"
                                 className="h-16 w-16 bg-red-600 rounded-full"
                                 onClick={() =>
                                     onButtonClick(ControlButton.Select)

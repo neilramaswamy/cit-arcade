@@ -1,12 +1,8 @@
-import pygame
-import numpy as np
-
-from collections import deque
 import os
-from game.mini_game import AbstractMiniGame 
-from game.update import UPDATE_UP, UPDATE_DOWN, UPDATE_LEFT, UPDATE_RIGHT
-from pygame.math import Vector2
-from random import randint
+
+import pygame
+
+from game.mini_game import AbstractMiniGame
 
 FRAME_RATE = 24
 FRAME_DELAY = (1000) / FRAME_RATE
@@ -21,14 +17,13 @@ class GifGame(AbstractMiniGame):
         self.height = self.screen.get_height()
         self.width  = self.screen.get_width()
 
-        self.should_rerender = True
 
         self.frames: list[pygame.SurfaceType] = []
-        for (_, _, filenames) in os.walk("game/assets/sonic"):
+        for (_, _, filenames) in os.walk("game/assets/pacman"):
             ordered_filenames = sorted(filenames)
 
             for filename in ordered_filenames:
-                img = pygame.image.load(os.path.join("game/assets/sonic", filename))
+                img = pygame.image.load(os.path.join("game/assets/pacman", filename))
                 img = pygame.transform.scale(img, (36, 40))
 
                 self.frames.append(img)

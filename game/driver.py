@@ -9,6 +9,7 @@ from game.games.snake import SnakeGame
 from game.games.tetris import TetrisGame
 from game.games.light_cycle import LightCycleGame
 from game.games.face import FaceGame
+from game.games.gifs import GifGame
 from game.games.conway import ConwaysGameOfLife
 from game.mini_game import AbstractMiniGame
 from game.games.grad import GradGame
@@ -44,6 +45,7 @@ class CitArcadeGameDriver():
         self.active_game: Optional[AbstractMiniGame] = None
 
         self.home_options: List[MenuOption] = [
+            MenuOption("Gifs", self._set_active_game(GifGame)),
             MenuOption("Face", self._set_active_game(FaceGame)),
             MenuOption("Snake", self._set_active_game(SnakeGame)),
             MenuOption("Tetris", self._set_active_game(TetrisGame)),
