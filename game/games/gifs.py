@@ -19,11 +19,11 @@ class GifGame(AbstractMiniGame):
 
 
         self.frames: list[pygame.SurfaceType] = []
-        for (_, _, filenames) in os.walk("game/assets/pacman"):
+        for (_, _, filenames) in os.walk("game/assets/sonic"):
             ordered_filenames = sorted(filenames)
 
             for filename in ordered_filenames:
-                img = pygame.image.load(os.path.join("game/assets/pacman", filename))
+                img = pygame.image.load(os.path.join("game/assets/sonic", filename))
                 img = pygame.transform.scale(img, (36, 40))
 
                 self.frames.append(img)
