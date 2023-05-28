@@ -19,7 +19,7 @@ class FaceGame(AbstractMiniGame):
 
         self.should_rerender = True
 
-        self.image = pygame.image.load("game/assets/tom.jpeg")
+        self.image = pygame.image.load("game/assets/tom.png")
         self.image = pygame.transform.scale(self.image, (36, 40))
         
     def update_screen(self):
