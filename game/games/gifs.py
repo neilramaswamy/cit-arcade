@@ -7,7 +7,7 @@ from game.mini_game import AbstractMiniGame
 FRAME_RATE = 24
 FRAME_DELAY = (1000) / FRAME_RATE
 
-NUM_LOOPS_PER_GIF = 10
+NUM_LOOPS_PER_GIF = 15
 
 class GifGame(AbstractMiniGame):
     def __init__(self, screen: pygame.SurfaceType, clock):
