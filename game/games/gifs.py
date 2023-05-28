@@ -23,7 +23,7 @@ class GifGame(AbstractMiniGame):
         # The number of full iterations we've done so far for the current gif
         self.loops_for_curr_gif = 0
 
-        self.gifs = ["congrats", "blueno", "sonic", "rainbow", "fireworks", "nyancat", "fire"]
+        self.gifs = ["congrats", "blueno", "sonic", "rainbow", "fireworks", "nyancat", "fire", "stars"]
 
         self.height = self.screen.get_height()
         self.width  = self.screen.get_width()
