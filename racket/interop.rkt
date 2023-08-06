@@ -15,24 +15,30 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; Generates a row of red pixels in increasing intensity
-(define (generate-row num-cols)
+(define (generate-row num-cols color)
   (define step (/ 255.0 num-cols))
+
+  (define shade-step (map (lambda (x) (/ x num-cols)) color))
+
+  (define (get-shade column)
+    (map (lambda (x) (* x column)) shade-step))
+    
   
   ; Helper function that keeps track of our current column
   (define (helper num-cols curr-col)
     (if (= num-cols 0)
         '()
-        (cons (list (* step curr-col) 0 0) (helper (- num-cols 1) (+ curr-col 1)))))
+        (cons (get-shade curr-col) (helper (- num-cols 1) (+ curr-col 1)))))
 
   ; Call the helper
   (helper num-cols 0))
 
 
 ; Generates a matrix of pixels of shape (num-rows, num-cols)
-(define (generate-pixels num-rows num-cols)
+(define (generate-pixels num-rows num-cols color)
   (if (= num-rows 0)
       '()
-      (cons (generate-row num-cols) (generate-pixels (- num-rows 1) num-cols))))
+      (cons (generate-row num-cols color) (generate-pixels (- num-rows 1) num-cols color))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;   SCREEN INITIALIZATION   ;
@@ -49,5 +55,8 @@
 ;     SCREEN PAINTING       ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(driver.paint_screen (generate-pixels rows cols))
+
+(driver.paint_screen (generate-pixels rows cols (list 255.0 0 0)))
+(sleep 2)
+(driver.paint_screen (generate-pixels rows cols (list 0 255.0 0)))
 
