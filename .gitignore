@@ -4,3 +4,6 @@ env/
 config.json
 
 .DS_Store
+
+# Rackety
+*.rkt~

@@ -42,6 +42,12 @@ class InteropModeDriver():
         print(f"Initialized the screen and strip")
         self.strip = get_strip(horz_side_length, vert_side_length, horz_panels, vert_panels)
 
+        vert_pixels = vert_panels * vert_side_length
+        horz_pixels = horz_panels * horz_side_length
+
+        # Return the number of rows and columns
+        return (vert_pixels, horz_pixels)
+
     def paint_screen(self, pixels):
         # TODO: Validate the dimensions of matrix
         render_to_strip(self.strip, pixels, self.panel_config.mapping)
