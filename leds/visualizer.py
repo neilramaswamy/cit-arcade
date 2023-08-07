@@ -55,7 +55,7 @@ class Visualizer:
 
         # Required to give plt chance to update display;
         # See https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.pause.html
-        plt.pause(0.1)
+        plt.pause(0.01)
 
 
 # Helper functions

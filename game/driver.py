@@ -1,6 +1,7 @@
 import os
 from threading import RLock, Thread
 from typing import Callable, List, Optional
+import numpy as np
 
 from game.manager import CitArcadeGameManager
 from game.renderer import render_to_strip
@@ -42,15 +43,20 @@ class InteropModeDriver():
         print(f"Initialized the screen and strip")
         self.strip = get_strip(horz_side_length, vert_side_length, horz_panels, vert_panels)
 
-        vert_pixels = vert_panels * vert_side_length
-        horz_pixels = horz_panels * horz_side_length
+        self.vert_pixels = vert_panels * vert_side_length
+        self.horz_pixels = horz_panels * horz_side_length
 
         # Return the number of rows and columns
-        return (vert_pixels, horz_pixels)
+        return (self.vert_pixels, self.horz_pixels)
 
     def paint_screen(self, pixels):
         # TODO: Validate the dimensions of matrix
         render_to_strip(self.strip, pixels, self.panel_config.mapping)
+
+    # Paints a flattened array of pixels to the screen by first reshaping them
+    def paint_screen_flat(self, flat_pixels):
+        pixels = np.reshape(flat_pixels, (self.vert_pixels, self.horz_pixels, 3))
+        self.paint_screen(pixels)
 
 
 class PythonModeDriver():
