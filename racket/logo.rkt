@@ -15,13 +15,26 @@
 ;  PIXEL GENERATION HELPERS  ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+; The alpha value for a fully transparent pixel
+(define ALPHA_TRANSPARENT 0)
+; The RGB value of an all-black pixel
+(define BLACK_PIXEL (list 0 0 0))
+
 ; Transforms a list of 2htdp/image/color into a flat list of [R, G, B]
 (define (color-list-to-list clist)
-  (map (lambda (kolor) (list (color-red kolor) (color-green kolor) (color-blue kolor))) clist))
+  (map (lambda (kolor)
+          ; Transparent pixels should be black, the "nothing"/off color on our screen
+          ; 
+          ; I think we need this explicit check because image->color-list (or PNG?) gives transparent
+          ; pixels an RGB of (255, 255, 255).
+         (if (= (color-alpha kolor) ALPHA_TRANSPARENT)
+              BLACK_PIXEL
+             (list (color-red kolor) (color-green kolor) (color-blue kolor)))) clist))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;   SCREEN INITIALIZATION   ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (define driver (game.driver.InteropModeDriver))
 
 (define py-dimensions (driver.initialize_screen))
@@ -34,14 +47,11 @@
 ;     SCREEN PAINTING       ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
 ; Loads a sequence of GIF frames in dir, assuming they are sorted alphabetically
 ; Returns a list of 2htdp/image.
 (define (load-gif dir num-cols num-rows)
   ; They come back from the OS sorted
   (define frame-paths (map (lambda (x) (build-path dir x)) (directory-list dir)))
-
-  (displayln (path->string (car frame-paths)))
 
   (map (lambda (path)
          (define img (bitmap/file (path->string path)))
@@ -55,18 +65,19 @@
 
 ; Render a list of already-scaled 2htdp/image to the screen
 (define (show-gif frames)
-  (define color-lists (map (lambda (frame)
-    (color-list-to-list (image->color-list (rotate 90 frame)))) frames))
-
-  (map (lambda (color-list)
-        (define t0 (current-inexact-monotonic-milliseconds))
-         (driver.paint_screen_flat color-list)
-         (define t1 (current-inexact-monotonic-milliseconds))
-         (displayln (- t1 t0))) color-lists)
-
-  ; Run indefinitely!
-  (show-gif frames))
+  ; A List of Lists, where the inner Lists are a sequence of pixels corresponding to a single frame
+  ; Compute this up front so we don't have to repeat it ever
+  (define list-of-frame-pixels (map (lambda (frame)
+    (color-list-to-list (image->color-list frame))) frames))
+  
+  (define (show-frames)
+    (map (lambda (color-list)
+          (driver.paint_screen_flat color-list)) list-of-frame-pixels)
+    ; Run indefinitely!
+    (show-frames))
+  
+  (show-frames))
 
 ; Do the actual rendering
-(define racket-frames (load-gif "racket/nightmare" num-rows num-cols))
+(define racket-frames (load-gif "game/assets/sonic" num-cols num-rows))
 (show-gif racket-frames)
