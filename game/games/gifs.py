@@ -56,7 +56,13 @@ class GifGame(AbstractMiniGame):
         pygame.display.update()
 
     def apply_update(self, update):
+        print(update)
         if update == UPDATE_LEFT:
             self.gif_index = (self.gif_index - 1) % len(self.gifs)
+            self.frame_index = 0
         elif update == UPDATE_RIGHT:
             self.gif_index = (self.gif_index + 1) % len(self.gifs)
+            self.frame_index = 0
+
+        print(f"gif index is now {self.gif_index} and frame index {self.frame_index}")
+        
