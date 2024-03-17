@@ -3,11 +3,10 @@ import os
 import pygame
 
 from game.mini_game import AbstractMiniGame
+from game.update import UPDATE_LEFT, UPDATE_RIGHT
 
 FRAME_RATE = 24
 FRAME_DELAY = (1000) / FRAME_RATE
-
-NUM_LOOPS_PER_GIF = 15
 
 class GifGame(AbstractMiniGame):
     def __init__(self, screen: pygame.SurfaceType, clock):
@@ -47,21 +46,17 @@ class GifGame(AbstractMiniGame):
         self.screen.fill((0, 0, 0)) 
         self.screen.blit(self.frames[self.gif_index][self.frame_index], (0, 0))
 
-        # End of current gif        
+        # Loop back to the start of the gif. We advance the gif with the
+        # user-specified Updates in apply_update.
         if (self.frame_index == len(self.frames[self.gif_index]) - 1):
             self.frame_index = 0
-
-            # Go to the next gif
-            if self.loops_for_curr_gif == NUM_LOOPS_PER_GIF - 1:
-                self.gif_index = (self.gif_index + 1) % len(self.gifs)
-                self.loops_for_curr_gif = 0
-            else:
-                # Loop once more
-                self.loops_for_curr_gif += 1
         else:
             self.frame_index += 1
 
         pygame.display.update()
 
-    def apply_update(self, update=None):
-        return
+    def apply_update(self, update):
+        if update == UPDATE_LEFT:
+            self.gif_index = (self.gif_index - 1) % len(self.gifs)
+        elif update == UPDATE_RIGHT:
+            self.gif_index = (self.gif_index + 1) % len(self.gifs)
