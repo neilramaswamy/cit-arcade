@@ -13,8 +13,15 @@ from game.games.gifs import GifGame
 from game.games.conway import ConwaysGameOfLife
 from game.mini_game import AbstractMiniGame
 from game.games.grad import GradGame
-from game.update import UPDATE_PAUSE, UPDATE_SELECT, Update, UPDATE_UP, UPDATE_DOWN
-
+from game.update import (
+    UPDATE_PAUSE,
+    UPDATE_SELECT, 
+    Update, 
+    UPDATE_UP, 
+    UPDATE_DOWN, 
+    UPDATE_RIGHT, 
+    UPDATE_LEFT,
+)
 # When set to "dummy", the PyGame window will not appear
 os.environ["SDL_VIDEODRIVER"] = "dummy"
 
@@ -23,13 +30,17 @@ os.environ["SDL_VIDEODRIVER"] = "dummy"
 MAX_HOME_MENU_OPTIONS = 4
 
 class MenuOption():
-    def __init__(self, name: str, on_click: Callable[[None], None]):
+    def __init__(self, name: str, on_click: Callable[[None], None], image: str = 'tron.png'):
         self.name = name
-        self.click = on_click 
+        self.click = on_click
+        self.image = pygame.image.load(f"game/assets/menu/{image}") if image else None
 
 class CitArcadeGameManager():
     def __init__(self, height: int, width: int, updates: list, updates_lock: RLock):
         pygame.init()
+
+        self.width = width
+        self.height = height
 
         self.screen = pygame.display.set_mode((width, height), 0, 32)
         self.clock = pygame.time.Clock()
@@ -41,17 +52,17 @@ class CitArcadeGameManager():
         self.active_game: Optional[AbstractMiniGame] = None
 
         self.home_options: List[MenuOption] = [
-            MenuOption("Gifs", self._set_active_game(GifGame)),
-            MenuOption("Face", self._set_active_game(FaceGame)),
-            MenuOption("Snake", self._set_active_game(SnakeGame)),
-            MenuOption("Tetris", self._set_active_game(TetrisGame)),
-            MenuOption("Grad", self._set_active_game(GradGame)),
-            MenuOption("Tron", self._set_active_game(LightCycleGame)),
-            MenuOption("Conway", self._set_active_game(ConwaysGameOfLife))
+            MenuOption("Gifs", self._set_active_game(GifGame), 'gifs.png'),
+            MenuOption("Face", self._set_active_game(FaceGame), 'faces.png'),
+            MenuOption("Snake", self._set_active_game(SnakeGame), 'snake.png'),
+            MenuOption("Tetris", self._set_active_game(TetrisGame), 'tetris.png'),
+            MenuOption("Grad", self._set_active_game(GradGame), 'grad.png'),
+            MenuOption("Tron", self._set_active_game(LightCycleGame), 'tron.png'),
+            MenuOption("Conway", self._set_active_game(ConwaysGameOfLife), 'life.png'),
         ]
         self.paused_options: List[MenuOption] = [
-            MenuOption("Resume", self._return_to_game),
-            MenuOption("Exit", self._return_to_home)
+            MenuOption("Resume", self._return_to_game, 'continue.png'),
+            MenuOption("Exit", self._return_to_home, 'back.png')
         ]
 
         # Load the font up-front since that seems to take time
@@ -59,7 +70,13 @@ class CitArcadeGameManager():
 
         # If the game is paused, then it indexes into self.paused_options
         # If the game is not paused, it indexes into self.home_options
+
+        # Option index is the index of the currently selected option
+        # This is translated into a bounding box by _get_option_bound
         self.option_index = 0
+
+        self.selected = pygame.image.load(f"game/assets/menu/selected.png")
+        self.game_selected = pygame.image.load(f"game/assets/menu/game_selected.png")
 
     def _set_active_game(self, Game: AbstractMiniGame):
         def F():
@@ -121,6 +138,13 @@ class CitArcadeGameManager():
         elif update.button == UPDATE_DOWN:
             self.option_index = min(self.option_index + 1, len(options) - 1)
             return True
+        # To be used if screen is bigger
+        # elif update.button == UPDATE_RIGHT: 
+        #     self.option_index = min(self.option_index + 1, len(options) - 1)
+        #     return True
+        # elif update.button == UPDATE_LEFT: 
+        #     self.option_index = min(self.option_index - 1, 0)
+            return True
         elif update.button == UPDATE_SELECT:
             options[self.option_index].click()
             return True
@@ -145,19 +169,19 @@ class CitArcadeGameManager():
         # of elements to show. We start the four items in front of the current position,
         # self.option_index, unless we're near the end.
         start_menu_index = max(0, self.option_index - (MAX_HOME_MENU_OPTIONS - 1))
-        curr_home_options = self.home_options[start_menu_index:start_menu_index+MAX_HOME_MENU_OPTIONS]
+        curr_home_options = self.home_options[start_menu_index : start_menu_index + MAX_HOME_MENU_OPTIONS]
 
         for i, option in enumerate(curr_home_options):
             option_index = i + start_menu_index
 
-            selected_str = "»" if option_index == self.option_index else " "
-            img = self.font.render(f"{selected_str}{option.name}", False, (255, 0, 0))
-            self.screen.blit(img, (0, i * 10 - 2))
+            self.screen.blit(option.image, (0, i * self.height/MAX_HOME_MENU_OPTIONS))
+            if option_index == self.option_index:
+                self.screen.blit(self.selected, (0, i * self.height/MAX_HOME_MENU_OPTIONS)) 
 
     def render_paused_screen(self):
         self.screen.fill((0, 0, 0))
 
         for i, option in enumerate(self.paused_options):
-            selected_str = "»" if i == self.option_index else " "
-            img = self.font.render(f"{selected_str}{option.name}", False, (255, 0, 0))
-            self.screen.blit(img, (0, i * 10 - 2))
+            self.screen.blit(option.image, (0, i * self.height/MAX_HOME_MENU_OPTIONS))
+            if i == self.option_index:
+                self.screen.blit(self.game_selected, (0, i * self.height/MAX_HOME_MENU_OPTIONS)) 
